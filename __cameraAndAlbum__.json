@@ -1,0 +1,13 @@
+{
+  "type": 0,
+  "platform": [
+    "android",
+    "ios"
+  ],
+  "module": "sm_imagepicker",
+  "methods": [
+    "imageFromCamera",
+    "imageFromCameraAlbum",
+    "multiImage"
+  ]
+}

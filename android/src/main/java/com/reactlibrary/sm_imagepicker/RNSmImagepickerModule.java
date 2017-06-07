@@ -204,7 +204,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           if (intent != null){
             takePhoto= intent.getData();
           }
-          if(takePhoto == null && requestCode == 0){
+          if(takePhoto == null && requestCode == CAMERA_PIC){
             takePhoto = photoUri;
           }
           final String path2 = getPath(activity, takePhoto);

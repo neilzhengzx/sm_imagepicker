@@ -21,7 +21,7 @@ RCT_EXPORT_METHOD(imageFromCamera:(NSDictionary *)params callback:(RCTResponseSe
     int compressedPixel = 1280;
     double quality = 0.6;
     if(params[@"isEdit"]){
-        isEdit = params[@"isEdit"];
+        isEdit = [params[@"isEdit"] boolValue];
     }
     if(params[@"compressedPixel"]){
         compressedPixel = [params[@"compressedPixel"] intValue];
@@ -44,7 +44,7 @@ RCT_EXPORT_METHOD(imageFromCameraAlbum:(NSDictionary *)params callback:(RCTRespo
     int compressedPixel = 1280;
     double quality = 0.6;
     if(params[@"isEdit"]){
-        isEdit = params[@"isEdit"];
+        isEdit = [params[@"isEdit"] boolValue];
     }
     if(params[@"compressedPixel"]){
         compressedPixel = [params[@"compressedPixel"] intValue];

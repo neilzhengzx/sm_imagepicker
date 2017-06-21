@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -23,7 +24,14 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -133,7 +141,87 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     }
 
     multiImageAlbum();
+  }
 
+  @ReactMethod
+  public void cropImage(ReadableMap params, Callback callback){
+    // cropImage 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
+    mCallBack = callback;
+
+    mCurrentActivety = getCurrentActivity();
+    if (mCurrentActivety == null) {
+      callbackWithNull();
+      return;
+    }
+
+    if (params.hasKey("number")) {
+      mMultiImageNum = params.getInt("number");
+    }
+    if (params.hasKey("compressedPixel")) {
+      mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
+    }
+
+    String imageUrl = "";
+    if (params.hasKey("url") && params.getString("url").length() > 0) {
+      imageUrl = params.getString("url");
+    }else{
+      callbackWithNull();
+    }
+
+    BufferedOutputStream bos = null;
+    FileOutputStream fos = null;
+    File file = null;
+
+    try{
+      URL url = new URL(imageUrl);
+      HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+      conn.setConnectTimeout(30000);//设置超时
+      conn.setDoInput(true); //设置请求可以放服务器写入数据
+      conn.setReadTimeout(30000); //设置连接去读取数据的超时时间
+      //4.真正请求图片,然后把从网络上请求到的二进制流保存到了inputStream里面
+      conn.connect();
+      InputStream inStream = conn.getInputStream();//通过输入流获取图片数据
+
+      ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+      byte[] buffer = new byte[1024];
+      int len = 0;
+      while( (len=inStream.read(buffer)) != -1 ){
+        outStream.write(buffer, 0, len);
+      }
+      inStream.close();
+      byte[] btImg = outStream.toByteArray();
+
+      File dir = new File(mCurrentActivety.getExternalCacheDir()+"/UploadImage/");
+      if(!dir.exists())
+      {
+        dir.mkdir();
+      }
+      cropImagePath = mCurrentActivety.getExternalCacheDir()+"/UploadImage/crop"+System.currentTimeMillis() + ".jpg";
+      file = new File(cropImagePath);
+
+      fos = new FileOutputStream(file);
+      bos = new BufferedOutputStream(fos);
+      bos.write(btImg);
+
+      cropImageFromFile(file, CROPIMAGE);
+    } catch (Exception e){
+      callbackWithNull();
+    }finally {
+      if (bos != null) {
+        try {
+          bos.close();
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+      if (fos != null) {
+        try {
+          fos.close();
+        } catch (IOException e1) {
+          e1.printStackTrace();
+        }
+      }
+    }
   }
 
   interface SaveThumbListerner{
@@ -406,6 +494,12 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
   private static void cropImageUri(String path, int requestCode)
   {
+    File initialImage = new File(path);
+    cropImageFromFile(initialImage, requestCode);
+  }
+
+  private static void cropImageFromFile(File initialImage, int requestCode)
+  {
     File thumbDir = new File(mCurrentActivety.getExternalCacheDir()+"/UploadImage/");
     if(!thumbDir.exists())
     {
@@ -415,7 +509,6 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     File tempFile = new File(cropImagePath);
 
     Intent intent = new Intent("com.android.camera.action.CROP");
-    File initialImage = new File(path);
     intent.setDataAndType(Uri.fromFile(initialImage), "image/*");
     intent.putExtra("crop", "true");
     intent.putExtra("aspectX", 1);   //不设置时可动态改变长宽比

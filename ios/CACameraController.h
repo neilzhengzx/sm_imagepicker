@@ -7,16 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TOCropViewController.h"
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
 #else
 #import <React/RCTBridgeModule.h>
 #endif
 
-@interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate>
+@interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate,TOCropViewControllerDelegate>
 @property (nonatomic, copy) RCTResponseSenderBlock mCallback;
 @property int compressedPixel;
 @property double quality;
+@property BOOL isEdit;
 
 - (UIImage *)fixOrientation:(UIImage *)image;
 

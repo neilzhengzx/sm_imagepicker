@@ -3,6 +3,7 @@
 #import "CAAlbumController.h"
 #import "CACameraController.h"
 #import "CAMultiAlbumViewController.h"
+#import "CACropImageController.h"
 
 @implementation RNSmImagepicker
 
@@ -82,6 +83,29 @@ RCT_EXPORT_METHOD(multiImage:(NSDictionary *)params callback:(RCTResponseSenderB
     }
     
     [album pushImagePickerController:number compressedPixel:compressedPixel quality:quality callback:callback];
+}
+
+RCT_EXPORT_METHOD(cropImage:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback)
+{
+    int compressedPixel = 1280;
+    double quality = 0.6;
+    NSString* url = @"";
+    if(params[@"compressedPixel"]){
+        compressedPixel = [params[@"compressedPixel"] intValue];
+    }
+    if(params[@"quality"]){
+        quality = [params[@"quality"] doubleValue] / 100;
+    }
+    if(params[@"url"]){
+        url = params[@"url"];
+    }
+    
+    static  CACropImageController* cropImage = nil;
+    if(!cropImage){
+        cropImage = [[CACropImageController alloc] init];
+    }
+    
+    [cropImage openCropImageView:url compressedPixel:compressedPixel quality:quality callback:callback];
 }
 
 @end

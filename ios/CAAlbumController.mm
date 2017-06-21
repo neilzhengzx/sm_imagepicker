@@ -32,12 +32,12 @@
     {
         _compressedPixel = compressedPixel;
         _quality = quality;
+        _isEdit = allowEdit;
         
         UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
         
         imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
         
-        imagePicker.allowsEditing = allowEdit;
         imagePicker.delegate = self;
         
         _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
@@ -66,45 +66,20 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     NSString *imageType;
-    if (picker.allowsEditing)
-    {
-        imageType = [NSString stringWithFormat:@"UIImagePickerControllerEditedImage"];
-    }
-    else
-    {
-        imageType = [NSString stringWithFormat:@"UIImagePickerControllerOriginalImage"];
-    }
+    imageType = [NSString stringWithFormat:@"UIImagePickerControllerOriginalImage"];
     UIImage *image = [info objectForKey:imageType];
-    
     UIImage *newfixImage = [self fixOrientation:image];
-    CGSize size ;
-    if ([newfixImage size].width>[newfixImage size].height)
-    {
-        size = CGSizeMake(_compressedPixel, _compressedPixel*([newfixImage size].height/[newfixImage size].width));
+    
+    if(_isEdit){
+        TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:newfixImage];
+        cropViewController.delegate = self;
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
+        }];
+    }else{
+        [self getEndImage:newfixImage];
+        [picker dismissViewControllerAnimated:YES completion:nil];
     }
-    else
-    {
-        size = CGSizeMake(_compressedPixel*([newfixImage size].width/[newfixImage size].height), _compressedPixel);
-    }
-    
-    UIImage *fiximage = [self scaleFromImage:newfixImage toSize:size];
-    
-    NSData *data = UIImageJPEGRepresentation(fiximage,_quality);
-    NSData *initialData = UIImageJPEGRepresentation(newfixImage,1.0);
-    if (size.width * size.height > [newfixImage size].width * [newfixImage size].height)
-    {
-        data = initialData;
-    }
-    
-    NSString * path = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"photo.jpg"];
-    [data writeToFile:path atomically:YES];
-    NSString * initialpath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"initialphoto.jpg"];
-    [initialData writeToFile:initialpath atomically:YES];
-    
-    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    
-    _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
-    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (UIImage *) scaleFromImage: (UIImage *) image toSize: (CGSize) size
@@ -123,6 +98,7 @@
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
+
 - (UIImage *)fixOrientation:(UIImage *)srcImg {
     if (srcImg.imageOrientation == UIImageOrientationUp) return srcImg;
     CGAffineTransform transform = CGAffineTransformIdentity;
@@ -192,4 +168,51 @@
     CGImageRelease(cgimg);
     return img;
 }
+
+#pragma mark - Cropper Delegate -
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+{
+    [self getEndImage:image];
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+{
+    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    
+    _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)getEndImage:(UIImage*)newfixImage
+{
+    CGSize size ;
+    if ([newfixImage size].width>[newfixImage size].height)
+    {
+        size = CGSizeMake(_compressedPixel, _compressedPixel*([newfixImage size].height/[newfixImage size].width));
+    }
+    else
+    {
+        size = CGSizeMake(_compressedPixel*([newfixImage size].width/[newfixImage size].height), _compressedPixel);
+    }
+    
+    UIImage *fiximage = [self scaleFromImage:newfixImage toSize:size];
+    
+    NSData *data = UIImageJPEGRepresentation(fiximage,_quality);
+    NSData *initialData = UIImageJPEGRepresentation(newfixImage,1.0);
+    if (size.width * size.height > [newfixImage size].width * [newfixImage size].height)
+    {
+        data = initialData;
+    }
+    
+    NSString * path = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"photo.jpg"];
+    [data writeToFile:path atomically:YES];
+    NSString * initialpath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"initialphoto.jpg"];
+    [initialData writeToFile:initialpath atomically:YES];
+    
+    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    
+    _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
+}
+
 @end

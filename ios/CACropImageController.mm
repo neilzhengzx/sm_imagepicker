@@ -35,6 +35,8 @@
     
     TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:imagea];
     cropViewController.delegate = self;
+    _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+    [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleLightContent];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
 }
 

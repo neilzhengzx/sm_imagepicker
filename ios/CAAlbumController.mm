@@ -77,8 +77,10 @@
             [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
         }];
     }else{
-        [self getEndImage:newfixImage];
-        [picker dismissViewControllerAnimated:YES completion:nil];
+        [picker dismissViewControllerAnimated:YES completion:^{
+            [self getEndImage:newfixImage];
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }];
     }
 }
 
@@ -93,10 +95,10 @@
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    [picker dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }];
 }
 
 - (UIImage *)fixOrientation:(UIImage *)srcImg {
@@ -173,15 +175,17 @@
 - (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
 {
     [self getEndImage:image];
-    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }];
 }
 
 - (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
 {
-    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
-    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }];
 }
 
 - (void)getEndImage:(UIImage*)newfixImage
@@ -209,8 +213,6 @@
     [data writeToFile:path atomically:YES];
     NSString * initialpath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"initialphoto.jpg"];
     [initialData writeToFile:initialpath atomically:YES];
-    
-    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     
     _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
 }

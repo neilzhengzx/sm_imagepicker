@@ -52,16 +52,18 @@
 #pragma mark - Cropper Delegate -
 - (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
 {
-    [self getEndImage:image];
-    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        [self getEndImage:image];
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }];
 }
 
 - (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
 {
-    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
-    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }];
 }
 
 - (void)getEndImage:(UIImage*)newfixImage

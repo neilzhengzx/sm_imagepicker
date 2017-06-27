@@ -511,10 +511,10 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     Intent intent = new Intent("com.android.camera.action.CROP");
     intent.setDataAndType(Uri.fromFile(initialImage), "image/*");
     intent.putExtra("crop", "true");
-    intent.putExtra("aspectX", 1);   //不设置时可动态改变长宽比
-    intent.putExtra("aspectY", 1);
-//        intent.putExtra("outputX", 400);  //不设置时不固定像素大小
-//        intent.putExtra("outputY", 400);
+//    intent.putExtra("aspectX", 1);   //不设置时可动态改变长宽比
+//    intent.putExtra("aspectY", 1);
+//    intent.putExtra("outputX", 400);  //不设置时不固定像素大小
+//    intent.putExtra("outputY", 400);
     intent.putExtra("scale", true);
     intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
     intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());

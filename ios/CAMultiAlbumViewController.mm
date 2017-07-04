@@ -61,10 +61,10 @@
         //ios9.0可获得图片名称
 //        PHAssetResource *resource = [[PHAssetResource assetResourcesForAsset:_selectedAssets[i]] firstObject];
 //        NSString *fileName = resource.originalFilename;
-        NSString * path = [[NSString alloc] initWithFormat:@"%@%@%d%@", str, @"IMG_10", i, @".jpg" ];
+        NSString * path = [[NSString alloc] initWithFormat:@"%@/%@%d%@", str, @"IMG_10", i, @".jpg" ];
         [data writeToFile:path atomically:YES];
         
-        NSString * initialpath = [[NSString alloc] initWithFormat:@"%@%@%d%@", str, @"IMG_", i, @".jpg" ];
+        NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%d%@", str, @"IMG_", i, @".jpg" ];
         [initialData writeToFile:initialpath atomically:YES];
         
         paths = [[NSString alloc] initWithFormat:@"%@%@%@", paths, path, @",*"];

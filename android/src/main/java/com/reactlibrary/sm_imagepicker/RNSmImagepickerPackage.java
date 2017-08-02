@@ -16,7 +16,7 @@ public class RNSmImagepickerPackage implements ReactPackage {
       return Arrays.<NativeModule>asList(new RNSmImagepickerModule(reactContext));
     }
 
-    @Override
+//    @Override
     public List<Class<? extends JavaScriptModule>> createJSModules() {
       return Collections.emptyList();
     }

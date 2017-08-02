@@ -167,7 +167,15 @@
 
 - (void)getEndImage:(UIImage*)newfixImage
 {
-    CGSize size = CGSizeMake(_compressedPixel/([newfixImage size].width/[newfixImage size].height), _compressedPixel);
+    CGSize size ;
+    if ([newfixImage size].width>[newfixImage size].height)
+    {
+        size = CGSizeMake(_compressedPixel, _compressedPixel*([newfixImage size].height/[newfixImage size].width));
+    }
+    else
+    {
+        size = CGSizeMake(_compressedPixel*([newfixImage size].width/[newfixImage size].height), _compressedPixel);
+    }
     UIImage *fiximage = [self scaleFromImage:newfixImage toSize:size];
     
     NSData *data = UIImageJPEGRepresentation(fiximage,_quality);

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -36,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.UUID;
 
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
@@ -222,6 +222,14 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         }
       }
     }
+  }
+
+  @ReactMethod
+  public void cleanImage(ReadableMap params, Callback callback){
+    // cleanImage 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
+
+    File imageDir = new File(this.reactContext.getExternalCacheDir() + "/UploadImage/");
+    deleteAllFilesOfDir(imageDir);
   }
 
   interface SaveThumbListerner{
@@ -436,7 +444,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     Thread thread =  new Thread(new Runnable() {
       @Override
       public void run() {
-        String name = "thumb" + System.currentTimeMillis()+".jpg";
+        String name = getUUID()+".jpg";
         String path = context.getExternalCacheDir()+"/UploadImage/"+name;
         if(listerner != null)
         {
@@ -471,7 +479,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         String thumbPaths = "";
         for (String imagepath : imagepaths)
         {
-          String name = "thumbPhoto"+String.valueOf(index)+".jpg";
+          String name = getUUID()+".jpg";
           String path = context.getExternalCacheDir()+"/UploadImage/"+name;
           if(creatThumbImage(context, imagepath, name))
           {
@@ -505,7 +513,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     {
       thumbDir.mkdir();
     }
-    cropImagePath = mCurrentActivety.getExternalCacheDir()+"/UploadImage/initail"+System.currentTimeMillis() + ".jpg";
+    cropImagePath = mCurrentActivety.getExternalCacheDir()+"/UploadImage/"+getUUID() + ".jpg";
     File tempFile = new File(cropImagePath);
 
     Intent intent = new Intent("com.android.camera.action.CROP");
@@ -657,5 +665,31 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
    */
   public static boolean isGooglePhotosUri(Uri uri) {
     return "com.google.android.apps.photos.content".equals(uri.getAuthority());
+  }
+
+  public static String getUUID() {
+        /*UUID uuid = UUID.randomUUID();
+        String str = uuid.toString();
+        // 去掉"-"符号
+        String temp = str.substring(0, 8) + str.substring(9, 13)
+                + str.substring(14, 18) + str.substring(19, 23)
+                + str.substring(24);
+        return temp;*/
+
+    return UUID.randomUUID().toString().replace("-", "");
+  }
+
+  public static void deleteAllFilesOfDir(File path) {
+    if (!path.exists())
+      return;
+    if (path.isFile()) {
+      path.delete();
+      return;
+    }
+    File[] files = path.listFiles();
+    for (int i = 0; i < files.length; i++) {
+      deleteAllFilesOfDir(files[i]);
+    }
+    path.delete();
   }
 }

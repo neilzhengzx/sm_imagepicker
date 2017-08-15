@@ -108,5 +108,17 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)params callback:(RCTResponseSenderBl
     [cropImage openCropImageView:url compressedPixel:compressedPixel quality:quality callback:callback];
 }
 
+RCT_EXPORT_METHOD(cleanImage:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback)
+{
+    NSString * path = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSError *error = nil;
+    [[NSFileManager defaultManager] removeItemAtPath:path error:&error];
+    if (error) {
+        NSLog(@"%@",error);
+    }else{
+        NSLog(@"清理图片缓存成功");
+    }
+}
+
 @end
   

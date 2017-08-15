@@ -185,11 +185,44 @@
         data = initialData;
     }
     
-    NSString * path = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"photo.jpg"];
+    NSString *str = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSString *name = [self createUUID];
+    NSString *initailname = [self createUUID];
+    
+    NSString * path = [[NSString alloc] initWithFormat:@"%@/%@%@", str, name, @".jpg" ];
     [data writeToFile:path atomically:YES];
-    NSString * initialpath = [[NSTemporaryDirectory()stringByStandardizingPath] stringByAppendingPathComponent:@"initialphoto.jpg"];
+    
+    NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%@", str, initailname, @".jpg" ];
     [initialData writeToFile:initialpath atomically:YES];
     
     _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
+}
+
+- (NSString *)createUUID
+{
+    // Create universally unique identifier (object)
+    CFUUIDRef uuidObject = CFUUIDCreate(kCFAllocatorDefault);
+    
+    // Get the string representation of CFUUID object.
+    NSString *uuidStr = (NSString *)CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuidObject));
+    
+    NSMutableString *mstr=[NSMutableString stringWithString:uuidStr];
+    
+    CFRelease(uuidObject);
+    
+    NSString *search=@"-";
+    NSString *replace=@"";
+    
+    NSRange substr;
+    substr=[mstr rangeOfString:search];
+    
+    while (substr.location!=NSNotFound) {
+        [mstr replaceCharactersInRange:substr withString:replace];
+        substr=[mstr rangeOfString:search];
+    }
+    
+    uuidStr = [NSString stringWithString:mstr];
+    
+    return uuidStr;
 }
 @end

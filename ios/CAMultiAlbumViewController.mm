@@ -61,10 +61,13 @@
         //ios9.0可获得图片名称
 //        PHAssetResource *resource = [[PHAssetResource assetResourcesForAsset:_selectedAssets[i]] firstObject];
 //        NSString *fileName = resource.originalFilename;
-        NSString * path = [[NSString alloc] initWithFormat:@"%@/%@%d%@", str, @"IMG_10", i, @".jpg" ];
+        NSString *name = [self createUUID];
+        NSString *initailname = [self createUUID];
+        
+        NSString * path = [[NSString alloc] initWithFormat:@"%@/%@%@", str, name, @".jpg" ];
         [data writeToFile:path atomically:YES];
         
-        NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%d%@", str, @"IMG_", i, @".jpg" ];
+        NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%@", str, initailname, @".jpg" ];
         [initialData writeToFile:initialpath atomically:YES];
         
         paths = [[NSString alloc] initWithFormat:@"%@%@%@", paths, path, @",*"];
@@ -231,6 +234,34 @@
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (NSString *)createUUID
+{
+    // Create universally unique identifier (object)
+    CFUUIDRef uuidObject = CFUUIDCreate(kCFAllocatorDefault);
+    
+    // Get the string representation of CFUUID object.
+    NSString *uuidStr = (NSString *)CFBridgingRelease(CFUUIDCreateString(kCFAllocatorDefault, uuidObject));
+    
+    NSMutableString *mstr=[NSMutableString stringWithString:uuidStr];
+    
+    CFRelease(uuidObject);
+    
+    NSString *search=@"-";
+    NSString *replace=@"";
+    
+    NSRange substr;
+    substr=[mstr rangeOfString:search];
+    
+    while (substr.location!=NSNotFound) {
+        [mstr replaceCharactersInRange:substr withString:replace];
+        substr=[mstr rangeOfString:search];
+    }
+    
+    uuidStr = [NSString stringWithString:mstr];
+    
+    return uuidStr;
 }
 
 @end

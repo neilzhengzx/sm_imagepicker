@@ -77,7 +77,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
     mCurrentActivety = getCurrentActivity();
     if (mCurrentActivety == null) {
-      callbackWithNull();
+      callbackWithSuccess("","",0);
       return;
     }
 
@@ -102,7 +102,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
     mCurrentActivety = getCurrentActivity();
     if (mCurrentActivety == null) {
-      callbackWithNull();
+      callbackWithSuccess("","",0);
       return;
     }
 
@@ -126,7 +126,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
     mCurrentActivety = getCurrentActivity();
     if (mCurrentActivety == null) {
-      callbackWithNull();
+      callbackWithSuccess("","",0);
       return;
     }
 
@@ -150,7 +150,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
     mCurrentActivety = getCurrentActivity();
     if (mCurrentActivety == null) {
-      callbackWithNull();
+      callbackWithSuccess("","",0);
       return;
     }
 
@@ -165,7 +165,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     if (params.hasKey("url") && params.getString("url").length() > 0) {
       imageUrl = params.getString("url");
     }else{
-      callbackWithNull();
+      callbackWithSuccess("","",0);
     }
 
     BufferedOutputStream bos = null;
@@ -205,7 +205,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
       cropImageFromFile(file, CROPIMAGE);
     } catch (Exception e){
-      callbackWithNull();
+      callbackWithSuccess("","",0);
     }finally {
       if (bos != null) {
         try {
@@ -257,7 +257,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       try{
         mCurrentActivety.startActivityForResult(intent,CAMERA_PIC);
       } catch (Exception e){
-        callbackWithNull();
+        callbackWithSuccess("","",0);
       }
     }
   }
@@ -273,7 +273,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         mCurrentActivety.startActivityForResult(intent, SELECT_PIC);
       }
     } catch (Exception e){
-      callbackWithNull();
+      callbackWithSuccess("","",0);
     }
   }
 
@@ -286,7 +286,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     try{
       mCurrentActivety.startActivityForResult(intent, MULTIIMAGE);
     } catch (Exception e){
-      callbackWithNull();
+      callbackWithSuccess("","",0);
     }
   }
 
@@ -311,11 +311,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
               @Override
               public void finishToSaveThumb(String thumbPath) {
                 if(thumbPath.equalsIgnoreCase("")) thumbPath = path2;
-                WritableMap response = Arguments.createMap();
-                response.putString("paths", thumbPath);
-                response.putString("initialPaths", path2);
-                response.putInt("number", 1);
-                mCallBack.invoke(response);
+                callbackWithSuccess(thumbPath, path2, 1);
 //                Cocos2dxActivity.dismiss();
               }
             });
@@ -352,11 +348,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
             @Override
             public void finishToSaveThumb(String thumbPath) {
               if(thumbPath.equalsIgnoreCase("")) thumbPath = ImagesPaths;
-              WritableMap response = Arguments.createMap();
-              response.putString("paths", thumbPath);
-              response.putString("initialPaths", ImagesPaths);
-              response.putInt("number", numbers);
-              mCallBack.invoke(response);
+              callbackWithSuccess(thumbPath, ImagesPaths, numbers);
 //              Cocos2dxActivity.dismiss();
             }
           });
@@ -369,11 +361,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
             @Override
             public void finishToSaveThumb(String CropPath) {
               if(CropPath.equalsIgnoreCase("")) CropPath = cropImagePath;
-              WritableMap response = Arguments.createMap();
-              response.putString("paths", CropPath);
-              response.putString("initialPaths", cropImagePath);
-              response.putInt("number", 1);
-              mCallBack.invoke(response);
+              callbackWithSuccess(CropPath, cropImagePath, 1);
 //              Cocos2dxActivity.dismiss();
             }
           });
@@ -389,7 +377,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         case SELECT_PIC_KITKAT:
         case CROPIMAGE:
         case MULTIIMAGE:
-          callbackWithNull();
+          callbackWithSuccess("","",0);
           break;
         default:
           break;
@@ -400,12 +388,14 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   public void onNewIntent(Intent intent) {
   }
 
-  private void callbackWithNull(){
+  private void callbackWithSuccess(String path, String initialPaths, int number){
+    if(mCallBack == null) return;
     WritableMap response = Arguments.createMap();
-    response.putString("paths", "");
-    response.putString("initialPaths", "");
-    response.putInt("number", 0);
+    response.putString("paths", path);
+    response.putString("initialPaths", initialPaths);
+    response.putInt("number", number);
     mCallBack.invoke(response);
+    mCallBack = null;
   }
 
   public static Boolean creatThumbImage(final Context context, final String imagepath, String name)

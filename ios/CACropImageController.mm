@@ -60,7 +60,9 @@
 
 - (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
 {
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback = nil;
     [cropViewController dismissViewControllerAnimated:YES completion:^{
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     }];
@@ -99,7 +101,9 @@
     
     [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
+    _mCallback = nil;
 }
 
 - (NSString *)createUUID

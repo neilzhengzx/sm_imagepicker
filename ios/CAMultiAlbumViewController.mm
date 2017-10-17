@@ -31,7 +31,9 @@
     NSString *paths = @"";
     
     if (index != index2){
+        if(_mCallback == nil) return;
         _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+        _mCallback = nil;
         return;
     }
 
@@ -74,7 +76,9 @@
         initialPaths = [[NSString alloc] initWithFormat:@"%@%@%@", initialPaths, initialpath, @",*" ];
     }
     
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":paths, @"initialPaths":initialPaths, @"number":[NSNumber numberWithInt:index]}]);
+    _mCallback = nil;
 }
 
 - (void)pushImagePickerController:(int)_index compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
@@ -127,7 +131,9 @@
      {
          [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
          
+         if(_mCallback == nil) return;
          _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+         _mCallback = nil;
      }];
     
     _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];

@@ -53,7 +53,9 @@
     }
     else
     {
+        if(_mCallback == nil) return;
         _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+        _mCallback = nil;
         UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"提示"
                                                        message:@"请在设置中开启应用相册权限"
                                                       delegate:self
@@ -95,7 +97,9 @@
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback = nil;
     [picker dismissViewControllerAnimated:YES completion:^{
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     }];
@@ -182,7 +186,9 @@
 
 - (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
 {
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback = nil;
     [cropViewController dismissViewControllerAnimated:YES completion:^{
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     }];
@@ -219,7 +225,9 @@
     NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%@", str, initailname, @".jpg" ];
     [initialData writeToFile:initialpath atomically:YES];
     
+    if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
+    _mCallback = nil;
 }
 
 - (NSString *)createUUID

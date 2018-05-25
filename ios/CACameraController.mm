@@ -140,11 +140,10 @@
     }else{
         NSURL *videoURL = info[UIImagePickerControllerMediaURL];
         [self loadActivityIndicatorView];
-        [self getEndVideo:videoURL completion:^(NSString *savedPath){
+        [self getEndVideo:videoURL completion:^(NSString *savedPath, NSString *initPath){
             [self removeActivityIndicatorView];
             if(_mCallback != nil){
-                if(savedPath != nil) _mCallback(@[@{@"paths":savedPath, @"initialPaths":savedPath, @"number":@1}]);
-                else _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+                _mCallback(@[@{@"paths":savedPath, @"initialPaths":initPath, @"number":@1}]);
                 _mCallback = nil;
             }
             [picker dismissViewControllerAnimated:YES completion:^{
@@ -303,7 +302,7 @@
     _mCallback = nil;
 }
 
-- (void)getEndVideo:(NSURL*)videoURL completion:(void (^)(NSString *savedPath))completion
+- (void)getEndVideo:(NSURL*)videoURL completion:(void (^)(NSString *savedPath, NSString *initPath))completion
 {
     NSData *data = [NSData dataWithContentsOfURL:videoURL];
     
@@ -320,7 +319,7 @@
     if(_videoQuality == 0){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
-                completion(initialpath);
+                completion(initialpath, initialpath);
             }
         });
         return;
@@ -346,13 +345,13 @@
         if ([session status] == AVAssetExportSessionStatusCompleted) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) {
-                    completion([session.outputURL path]);
+                    completion([session.outputURL path], initialpath);
                 }
             });
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) {
-                    completion(nil);
+                    completion(initialpath, initialpath);
                 }
             });
         }

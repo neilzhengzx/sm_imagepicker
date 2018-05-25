@@ -6,6 +6,5 @@
 #endif
 
 @interface RNSmImagepicker : NSObject <RCTBridgeModule>
-
 @end
   

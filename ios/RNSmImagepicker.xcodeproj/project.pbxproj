@@ -15,7 +15,6 @@
 		6627B88E1EC2F7110009E8DE /* TZPhotoPreviewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8841EC2F7110009E8DE /* TZPhotoPreviewCell.m */; };
 		6627B88F1EC2F7110009E8DE /* TZPhotoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8861EC2F7110009E8DE /* TZPhotoPreviewController.m */; };
 		6627B8901EC2F7110009E8DE /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8881EC2F7110009E8DE /* UIView+Layout.m */; };
-		6627B8971EC2F7230009E8DE /* CAAlbumController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8921EC2F7230009E8DE /* CAAlbumController.mm */; };
 		6627B8981EC2F7230009E8DE /* CACameraController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8941EC2F7230009E8DE /* CACameraController.mm */; };
 		6627B8991EC2F7230009E8DE /* CAMultiAlbumViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6627B8961EC2F7230009E8DE /* CAMultiAlbumViewController.mm */; };
 		666D802C1EFA0DB1008A8F2A /* TOCropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 666D80261EFA0DB1008A8F2A /* TOCropViewController.m */; };
@@ -61,8 +60,6 @@
 		6627B8861EC2F7110009E8DE /* TZPhotoPreviewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TZPhotoPreviewController.m; path = TZImagePickerController/TZPhotoPreviewController.m; sourceTree = "<group>"; };
 		6627B8871EC2F7110009E8DE /* UIView+Layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+Layout.h"; path = "TZImagePickerController/UIView+Layout.h"; sourceTree = "<group>"; };
 		6627B8881EC2F7110009E8DE /* UIView+Layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+Layout.m"; path = "TZImagePickerController/UIView+Layout.m"; sourceTree = "<group>"; };
-		6627B8911EC2F7230009E8DE /* CAAlbumController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAAlbumController.h; sourceTree = "<group>"; };
-		6627B8921EC2F7230009E8DE /* CAAlbumController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CAAlbumController.mm; sourceTree = "<group>"; };
 		6627B8931EC2F7230009E8DE /* CACameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CACameraController.h; sourceTree = "<group>"; };
 		6627B8941EC2F7230009E8DE /* CACameraController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CACameraController.mm; sourceTree = "<group>"; };
 		6627B8951EC2F7230009E8DE /* CAMultiAlbumViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAMultiAlbumViewController.h; sourceTree = "<group>"; };
@@ -116,8 +113,6 @@
 			isa = PBXGroup;
 			children = (
 				666D80121EFA0DA5008A8F2A /* TOCropViewController */,
-				6627B8911EC2F7230009E8DE /* CAAlbumController.h */,
-				6627B8921EC2F7230009E8DE /* CAAlbumController.mm */,
 				6627B8931EC2F7230009E8DE /* CACameraController.h */,
 				6627B8941EC2F7230009E8DE /* CACameraController.mm */,
 				6627B8951EC2F7230009E8DE /* CAMultiAlbumViewController.h */,
@@ -258,7 +253,6 @@
 				666D80461EFA0EA9008A8F2A /* TOCropOverlayView.m in Sources */,
 				666D80651EFA23CB008A8F2A /* CACropImageController.mm in Sources */,
 				666D80491EFA0EA9008A8F2A /* TOCropView.m in Sources */,
-				6627B8971EC2F7230009E8DE /* CAAlbumController.mm in Sources */,
 				666D80481EFA0EA9008A8F2A /* TOCropToolbar.m in Sources */,
 				666D802C1EFA0DB1008A8F2A /* TOCropViewController.m in Sources */,
 				6627B88D1EC2F7110009E8DE /* TZPhotoPickerController.m in Sources */,

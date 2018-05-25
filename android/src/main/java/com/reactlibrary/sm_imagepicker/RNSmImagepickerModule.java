@@ -1,4 +1,3 @@
-
 package com.reactlibrary.sm_imagepicker;
 
 import android.app.Activity;
@@ -8,11 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
@@ -21,7 +23,10 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.UiThreadUtil;
 import com.facebook.react.bridge.WritableMap;
+import com.qiniu.pili.droid.shortvideo.PLShortVideoTranscoder;
+import com.qiniu.pili.droid.shortvideo.PLVideoSaveListener;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -51,12 +56,19 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   private static int mCameraAndAlbumCompressedPixel = 1280;
   private static int mCameraAndAlbumQuality = 60;
   private Callback mCallBack;
+  private CustomProgressDialog mProcessingDialog = null;
 
   private static final int CAMERA_PIC = 10;
   private static final int SELECT_PIC_KITKAT = 11;
   private static final int SELECT_PIC = 12;
   private static final int MULTIIMAGE = 13;
   private static final int CROPIMAGE = 14;
+  private static final int SELECT_VIDEO = 15;
+
+  private static int videoQuality = 1;
+  private static int videoDurationLimit = 15;
+
+  public static String TAG = "ReactNativeJS";
 
   public RNSmImagepickerModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -68,16 +80,14 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   public String getName() {
     return "RNSmImagepicker";
   }
-  
-  
+
+
   @ReactMethod
   public void imageFromCamera(ReadableMap params, Callback callback){
     // imageFromCamera 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
     mCallBack = callback;
 
-    mCurrentActivety = getCurrentActivity();
-    if (mCurrentActivety == null) {
-      callbackWithSuccess("","",0);
+    if (getActivity() == false) {
       return;
     }
 
@@ -100,9 +110,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     // imageFromCameraAlbum 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
     mCallBack = callback;
 
-    mCurrentActivety = getCurrentActivity();
-    if (mCurrentActivety == null) {
-      callbackWithSuccess("","",0);
+    if (getActivity() == false) {
       return;
     }
 
@@ -124,9 +132,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     // multiImage 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
     mCallBack = callback;
 
-    mCurrentActivety = getCurrentActivity();
-    if (mCurrentActivety == null) {
-      callbackWithSuccess("","",0);
+    if (getActivity() == false) {
       return;
     }
 
@@ -148,9 +154,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     // cropImage 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
     mCallBack = callback;
 
-    mCurrentActivety = getCurrentActivity();
-    if (mCurrentActivety == null) {
-      callbackWithSuccess("","",0);
+    if (getActivity() == false) {
       return;
     }
 
@@ -232,6 +236,54 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     deleteAllFilesOfDir(imageDir);
   }
 
+  @ReactMethod
+  public void videoFromAlbum(ReadableMap params, Callback callback){
+    // videoFromAlbum 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
+    mCallBack = callback;
+
+    if (getActivity() != false) {
+      videoQuality = 6;
+      if (params.hasKey("videoQuality")) {
+        videoQuality = params.getInt("videoQuality");
+        if(videoQuality > 7 || videoQuality < 0) videoQuality = 6;
+      }
+      videoAlbum();
+    }
+
+  }
+
+  @ReactMethod
+  public void videoFromCamera(ReadableMap params, Callback callback){
+    // videoFromCamera 实现, 返回参数用WritableMap封装, 调用callback.invoke(WritableMap)
+    mCallBack = callback;
+
+    if (getActivity() == false) {
+      return;
+    }
+
+    videoDurationLimit = 15;
+    videoQuality = 6;
+
+    if (params.hasKey("videoDurationLimit")) {
+      videoDurationLimit = params.getInt("videoDurationLimit");
+    }
+    if (params.hasKey("videoQuality")) {
+      videoQuality = params.getInt("videoQuality");
+      if(videoQuality > 7 || videoQuality < 0) videoQuality = 6;
+    }
+
+    videoCamera();
+  }
+
+  public Boolean getActivity(){
+    mCurrentActivety = getCurrentActivity();
+    if (mCurrentActivety == null) {
+      callbackWithSuccess("","",0);
+      return false;
+    }
+    return true;
+  }
+
   interface SaveThumbListerner{
     public void finishToSaveThumb(String thumbPath);
   }
@@ -290,6 +342,32 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     }
   }
 
+  public void videoAlbum(){
+    Intent intent = new Intent(Intent.ACTION_PICK);
+    intent.setType("video/*");
+
+    try{
+      mCurrentActivety.startActivityForResult(intent, SELECT_VIDEO);
+    } catch (Exception e){
+      callbackWithSuccess("","",0);
+    }
+  }
+
+  public void videoCamera(){
+    Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+    if (videoDurationLimit > 0)
+    {
+      intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, videoDurationLimit);
+    }
+
+    try{
+      mCurrentActivety.startActivityForResult(intent, SELECT_VIDEO);
+    } catch (Exception e){
+      callbackWithSuccess("","",0);
+    }
+  }
+
   public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent intent) {
     if (resultCode == activity.RESULT_OK) {
       switch (requestCode) {
@@ -312,10 +390,8 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
               public void finishToSaveThumb(String thumbPath) {
                 if(thumbPath.equalsIgnoreCase("")) thumbPath = path2;
                 callbackWithSuccess(thumbPath, path2, 1);
-//                Cocos2dxActivity.dismiss();
               }
             });
-//            Cocos2dxActivity.showProgressDialog("正在处理");
           }
           else
           {
@@ -349,11 +425,9 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
             public void finishToSaveThumb(String thumbPath) {
               if(thumbPath.equalsIgnoreCase("")) thumbPath = ImagesPaths;
               callbackWithSuccess(thumbPath, ImagesPaths, numbers);
-//              Cocos2dxActivity.dismiss();
             }
           });
           mOriginData.clear();
-//          Cocos2dxActivity.showProgressDialog("正在处理");
           break;
         case CROPIMAGE:
           getImageThumbnail(activity, cropImagePath, new SaveThumbListerner(){
@@ -362,11 +436,20 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
             public void finishToSaveThumb(String CropPath) {
               if(CropPath.equalsIgnoreCase("")) CropPath = cropImagePath;
               callbackWithSuccess(CropPath, cropImagePath, 1);
-//              Cocos2dxActivity.dismiss();
             }
           });
-//          Cocos2dxActivity.showProgressDialog("正在处理");
           break;
+        case SELECT_VIDEO:
+          Uri videoData = null;
+          if (intent != null){
+            videoData= intent.getData();
+          }
+          String videoPath = getPath(activity, videoData);
+          if(videoQuality == 0){
+            callbackWithSuccess(videoPath, videoPath, 1);
+            return;
+          }
+          compressVideoResouce(activity, videoPath);
         default:
           break;
       }
@@ -377,6 +460,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         case SELECT_PIC_KITKAT:
         case CROPIMAGE:
         case MULTIIMAGE:
+        case SELECT_VIDEO:
           callbackWithSuccess("","",0);
           break;
         default:
@@ -681,5 +765,149 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       deleteAllFilesOfDir(files[i]);
     }
     path.delete();
+  }
+
+  /**
+   * 压缩视频
+   *
+   * @param mContext
+   * @param filepath
+   */
+  public void compressVideoResouce(Context mContext,final String filepath) {
+    if (TextUtils.isEmpty(filepath)) {
+      callbackWithSuccess("","",0);
+      return;
+    }
+
+    if(mProcessingDialog == null){
+      mProcessingDialog = new CustomProgressDialog(mCurrentActivety);
+    }
+
+    //PLShortVideoTranscoder初始化，三个参数，第一个context，第二个要压缩文件的路径，第三个视频压缩后输出的路径
+    String filePath;
+    int dot = filepath.lastIndexOf('/');
+    if ((dot >-1) && (dot < (filepath.length()))) {
+      filePath = filepath.substring(0, dot);
+    }else{
+      callbackWithSuccess(filepath, filepath,0);
+      return;
+    }
+
+    String path = "/" + getUUID() + ".mp4";
+    PLShortVideoTranscoder mShortVideoTranscoder = new PLShortVideoTranscoder(mContext, filepath, filePath + path);
+    MediaMetadataRetriever retr = new MediaMetadataRetriever();
+    retr.setDataSource(filepath);
+    String height = retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT); // 视频高度
+    String width = retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH); // 视频宽度
+//    String rotation = retr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION); // 视频旋转方向
+//    int transcodingBitrateLevel = 6;//我这里选择的2500*1000压缩，这里可以自己选择合适的压缩比例
+    double srcbitrate = mShortVideoTranscoder.getSrcBitrate(); //视频质量
+
+    int videoHeight = Integer.parseInt(height);
+    int videoWidth = Integer.parseInt(width);
+    int resolution = getEncodingBitrateLevel(videoQuality, Integer.parseInt(height), Integer.parseInt(width));
+
+    int endHeight;
+    int endWidth;
+    if(videoHeight > videoWidth){
+      endHeight = resolution;
+      endWidth = resolution * videoWidth / videoHeight;
+      srcbitrate = srcbitrate * resolution * resolution / videoHeight / videoHeight;
+    }else{
+      endHeight = resolution * videoHeight / videoWidth;
+      endWidth = resolution;
+      srcbitrate = srcbitrate * resolution * resolution / videoWidth / videoWidth;
+    }
+
+    boolean startResult = mShortVideoTranscoder.transcode(endWidth, endHeight, (int)srcbitrate, false, new PLVideoSaveListener() {
+      @Override
+      public void onSaveVideoSuccess(String s) {
+        Log.d(TAG, "save ssuccess: " + s);
+        callbackWithSuccess(s, filepath,1);
+        resetDialog();
+      }
+
+      @Override
+      public void onSaveVideoFailed(final int errorCode) {
+        Log.d(TAG, "save failed: " + errorCode);
+        callbackWithSuccess("","",0);
+        resetDialog();
+      }
+
+      @Override
+      public void onSaveVideoCanceled() {
+        Log.d(TAG, "save canceled");
+        callbackWithSuccess("","",0);
+        resetDialog();
+      }
+
+      @Override
+      public void onProgressUpdate(final float percentage) {
+        UiThreadUtil.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            mProcessingDialog.setProgress((int) (100 * percentage));
+          }
+        });
+      }
+    });
+    if (startResult) {
+      UiThreadUtil.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          mProcessingDialog.show();
+        }
+      });
+    } else {
+      callbackWithSuccess("","",0);
+    }
+  }
+
+  public void resetDialog(){
+    UiThreadUtil.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mProcessingDialog.dismiss();
+        mProcessingDialog.setProgress(0);
+      }
+    });
+  }
+
+  /**
+   * 设置压缩质量
+   *
+   * @param position
+   * @return
+   */
+  private int getEncodingBitrateLevel(int position, int height, int width) {
+    int length = 1080;
+    int maxLength = height > width ? height : width;
+    switch (position){
+      case 1:
+        length = maxLength/4 > 640 ? 640 : maxLength/4;
+        break;
+      case 2:
+        length = maxLength / 2;
+        break;
+      case 3:
+        length = maxLength;
+        break;
+      case 4:
+        length = 640;
+        break;
+      case 5:
+        length = 960;
+        break;
+      case 6:
+        length = 1280;
+        break;
+      case 7:
+        length = 1920;
+        break;
+      default:
+        length = 1280;
+        break;
+    }
+    return length;
   }
 }

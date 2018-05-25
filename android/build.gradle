@@ -40,5 +40,6 @@ repositories {
 dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.github.lovetuzitong:MultiImageSelector:1.2'
+    compile files('libs/pldroid-shortvideo-1.10.0.jar')
 }
   

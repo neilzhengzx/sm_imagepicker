@@ -9,64 +9,150 @@
 #import "CACameraController.h"
 #import <AVFoundation/AVCaptureDevice.h>
 #import <AVFoundation/AVMediaFormat.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface CACameraController ()
 {
     UIImage *_image;
 }
+
+@property (strong, nonatomic) UIActivityIndicatorView *activityIndicatorView;
+@property (strong, nonatomic) UIImagePickerController *imagepickerController;
+
 @end
 
 @implementation CACameraController
 
--(void)openCameraView:(BOOL)allowEdit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
+-(void)openCameraView:(ImagePickerType)type allowEdit:(BOOL)allowEdit videoQuality:(int)videoQuality durationLimit:(int)durationLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
 {
     _mCallback = callback;
-    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if (authStatus == AVAuthorizationStatusAuthorized || authStatus == AVAuthorizationStatusNotDetermined)
-    {
-        _compressedPixel = compressedPixel;
-        _quality = quality;
-        _isEdit = allowEdit;
-        
-        UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
+ 
+    _compressedPixel = compressedPixel;
+    _quality = quality;
+    _isEdit = allowEdit;
+    _videoQuality = videoQuality;
+    
+    UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
+    
+    if(type == ImagePickerImageCamera || type == ImagePickerVideoCamera){
         imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-        imagePicker.delegate= self;
         
-        [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:imagePicker animated:YES completion:nil];
+        if(type == ImagePickerVideoCamera){
+            imagePicker.videoQuality = UIImagePickerControllerQualityTypeHigh;
+            if(durationLimit > 0) imagePicker.videoMaximumDuration = durationLimit;
+            imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
+        }else{
+            imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
+        }
+    }else if(type == ImagePickerImageAlbum || type == ImagePickerVideoAlbum){
+        imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        
+        if(type == ImagePickerVideoAlbum) imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
+        else imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
+        
+        _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+        [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleDefault];
+        
+        imagePicker.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+        
+        imagePicker.navigationBar.barTintColor = [UIColor colorWithRed:20.f/255.0 green:24.0/255.0 blue:38.0/255.0 alpha:1];
+        
+        imagePicker.navigationBar.tintColor = [UIColor whiteColor];
+    }
+    
+    imagePicker.modalPresentationStyle = UIModalPresentationCurrentContext;
+    imagePicker.delegate= self;
+    
+    _imagepickerController = imagePicker;
+    self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithFrame:imagePicker.view.bounds];
+    self.activityIndicatorView.center = imagePicker.view.center;
+    [self.activityIndicatorView setActivityIndicatorViewStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    self.activityIndicatorView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5];
+    
+    // Check permissions
+    void (^showPickerViewController)() = ^void() {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:imagePicker animated:YES completion:^{
+                if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+                    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+                }
+            }];
+        });
+    };
+    
+    if (type == ImagePickerVideoCamera || type == ImagePickerImageCamera) {
+        [self checkCameraPermissions:^(BOOL granted) {
+            if (!granted) {
+                [self permissionNotGranted];
+                return;
+            }
+            showPickerViewController();
+        }];
+    }
+    else { // RNImagePickerTargetLibrarySingleImage
+        [self checkPhotosPermissions:^(BOOL granted) {
+            if (!granted) {
+                [self permissionNotGranted];
+                return;
+            }
+            showPickerViewController();
+        }];
+    }
+}
 
-    }
-    else
-    {
-        if(_mCallback == nil) return;
-        _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
-        _mCallback = nil;
-        UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"提示"
-                                                       message:@"请在设置中开启应用相机权限"
-                                                      delegate:self
-                                             cancelButtonTitle: @"确定"
-                                             otherButtonTitles:nil];
-        [alert show];
-    }
+- (void)permissionNotGranted
+{
+    if(_mCallback == nil) return;
+    _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback = nil;
+    UIAlertView* alert = [[UIAlertView alloc]initWithTitle:@"提示"
+                                                   message:@"请在设置中开启应用相册权限"
+                                                  delegate:self
+                                         cancelButtonTitle: @"确定"
+                                         otherButtonTitles:nil];
+    [alert show];
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    
-    NSString *imageType;
-    imageType = [NSString stringWithFormat:@"UIImagePickerControllerOriginalImage"];
-    
-    UIImage *image = [info objectForKey:imageType];
-    UIImage *newfixImage = [self fixOrientation:image];
-    
-    if(_isEdit){
-        TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:newfixImage];
-        cropViewController.delegate = self;
-        [picker dismissViewControllerAnimated:YES completion:^{
-            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
-        }];
+    NSString *mediaType = [info objectForKey:UIImagePickerControllerMediaType];
+    if([mediaType isEqualToString:(NSString *)kUTTypeImage]){
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        UIImage *newfixImage = [self fixOrientation:image];
+        
+        if(_isEdit){
+            TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:newfixImage];
+            cropViewController.delegate = self;
+            [picker dismissViewControllerAnimated:YES completion:^{
+                [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
+            }];
+        }else{
+            [self getEndImage:newfixImage];
+            [picker dismissViewControllerAnimated:YES completion:^{
+                if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+                    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+                }
+            }];
+        }
     }else{
-        [self getEndImage:newfixImage];
-        [picker dismissViewControllerAnimated:YES completion:nil];
+        NSURL *videoURL = info[UIImagePickerControllerMediaURL];
+        [self loadActivityIndicatorView];
+        [self getEndVideo:videoURL completion:^(NSString *savedPath){
+            [self removeActivityIndicatorView];
+            if(_mCallback != nil){
+                if(savedPath != nil) _mCallback(@[@{@"paths":savedPath, @"initialPaths":savedPath, @"number":@1}]);
+                else _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+                _mCallback = nil;
+            }
+            [picker dismissViewControllerAnimated:YES completion:^{
+                if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+                    [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+                }
+            }];
+        }];
     }
 }
 - (UIImage *) scaleFromImage: (UIImage *) image toSize: (CGSize) size
@@ -83,7 +169,11 @@
     if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     _mCallback = nil;
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    [picker dismissViewControllerAnimated:YES completion:^{
+        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }
+    }];
 }
 - (UIImage *)fixOrientation:(UIImage *)srcImg {
     if (srcImg.imageOrientation == UIImageOrientationUp) return srcImg;
@@ -160,6 +250,9 @@
 {
     [cropViewController dismissViewControllerAnimated:YES completion:^{
         [self getEndImage:image];
+        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }
     }];
 }
 
@@ -168,7 +261,11 @@
     if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     _mCallback = nil;
-    [cropViewController dismissViewControllerAnimated:YES completion:nil];
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }
+    }];
 }
 
 - (void)getEndImage:(UIImage*)newfixImage
@@ -206,6 +303,85 @@
     _mCallback = nil;
 }
 
+- (void)getEndVideo:(NSURL*)videoURL completion:(void (^)(NSString *savedPath))completion
+{
+    NSData *data = [NSData dataWithContentsOfURL:videoURL];
+    
+    NSString *str = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSString *name = [self createUUID];
+    NSString *initailname = [self createUUID];
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%@", str, initailname, @".mp4" ];
+    [fm createFileAtPath:initialpath contents:data attributes:nil];
+    [data writeToFile:initialpath atomically:YES];
+    
+    if(_videoQuality == 0){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion(initialpath);
+            }
+        });
+        return;
+    }
+    
+    NSString * path = [[NSString alloc] initWithFormat:@"%@/%@%@", str, name, @".mp4" ];
+    
+    AVURLAsset *videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+    AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:videoAsset  presetName:[self getVideoQulity]];
+    session.outputURL = [NSURL fileURLWithPath:path];
+    session.shouldOptimizeForNetworkUse = true;
+    NSArray *supportedTypeArray = session.supportedFileTypes;
+    if ([supportedTypeArray containsObject:AVFileTypeMPEG4]) {
+        session.outputFileType = AVFileTypeMPEG4;
+    } else if (supportedTypeArray.count == 0) {
+        NSLog(@"No supported file types");
+        return;
+    } else {
+        session.outputFileType = [supportedTypeArray objectAtIndex:0];
+    }
+    
+    [session exportAsynchronouslyWithCompletionHandler:^{
+        if ([session status] == AVAssetExportSessionStatusCompleted) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) {
+                    completion([session.outputURL path]);
+                }
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) {
+                    completion(nil);
+                }
+            });
+        }
+    }];
+    
+}
+
+- (NSString *)getVideoQulity
+{
+    switch (_videoQuality) {
+        case 1:
+            return AVAssetExportPresetLowQuality;
+        case 2:
+            return AVAssetExportPresetMediumQuality;
+        case 3:
+            return AVAssetExportPresetHighestQuality;
+        case 4:
+            return AVAssetExportPreset640x480;
+        case 5:
+            return AVAssetExportPreset960x540;
+        case 6:
+            return AVAssetExportPreset1280x720;
+        case 7:
+            return AVAssetExportPreset1920x1080;
+        default:
+            return AVAssetExportPreset1280x720;
+    }
+}
+
 - (NSString *)createUUID
 {
     // Create universally unique identifier (object)
@@ -232,5 +408,61 @@
     uuidStr = [NSString stringWithString:mstr];
     
     return uuidStr;
+}
+
+- (void)checkCameraPermissions:(void(^)(BOOL granted))callback
+{
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if (status == AVAuthorizationStatusAuthorized) {
+        callback(YES);
+        return;
+    } else if (status == AVAuthorizationStatusNotDetermined){
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            callback(granted);
+            return;
+        }];
+    } else {
+        callback(NO);
+    }
+}
+
+- (void)checkPhotosPermissions:(void(^)(BOOL granted))callback
+{
+    PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
+    if (status == PHAuthorizationStatusAuthorized) {
+        callback(YES);
+        return;
+    } else if (status == PHAuthorizationStatusNotDetermined) {
+        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+            if (status == PHAuthorizationStatusAuthorized) {
+                callback(YES);
+                return;
+            }
+            else {
+                callback(NO);
+                return;
+            }
+        }];
+    }
+    else {
+        callback(NO);
+    }
+}
+
+// 加载视频转码的动画
+- (void)loadActivityIndicatorView {
+    if ([self.activityIndicatorView isAnimating]) {
+        [self.activityIndicatorView stopAnimating];
+        [self.activityIndicatorView removeFromSuperview];
+    }
+    
+    [_imagepickerController.view addSubview:self.activityIndicatorView];
+    [self.activityIndicatorView startAnimating];
+}
+
+// 移除视频转码的动画
+- (void)removeActivityIndicatorView {
+    [self.activityIndicatorView removeFromSuperview];
+    [self.activityIndicatorView stopAnimating];
 }
 @end

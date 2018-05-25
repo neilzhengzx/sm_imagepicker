@@ -15,12 +15,23 @@
 #endif
 
 @interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate,TOCropViewControllerDelegate>
+{
+    UIStatusBarStyle _UIStatusBarStyle;
+}
 @property (nonatomic, copy) RCTResponseSenderBlock mCallback;
 @property int compressedPixel;
 @property double quality;
+@property int videoQuality;
 @property BOOL isEdit;
+
+typedef NS_ENUM(NSInteger, ImagePickerType) {
+    ImagePickerImageAlbum,
+    ImagePickerImageCamera,
+    ImagePickerVideoAlbum,
+    ImagePickerVideoCamera
+};
 
 - (UIImage *)fixOrientation:(UIImage *)image;
 
--(void)openCameraView:(BOOL)allowEdit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback;
+-(void)openCameraView:(ImagePickerType)type allowEdit:(BOOL)allowEdit videoQuality:(int)videoQuality durationLimit:(int)durationLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback;
 @end

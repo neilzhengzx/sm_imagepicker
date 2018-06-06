@@ -42,7 +42,7 @@ RCT_EXPORT_METHOD(videoFromAlbum:(NSDictionary *)params callback:(RCTResponseSen
     BOOL isEdit = false;
     int compressedPixel = 1280;
     double quality = 0.6;
-    int videoQuality = 0;
+    int videoQuality = 6;
     int durationLimit = 15;
     
     if(params[@"isEdit"]){

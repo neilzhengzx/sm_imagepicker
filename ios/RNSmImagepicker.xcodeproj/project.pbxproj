@@ -27,6 +27,7 @@
 		666D80481EFA0EA9008A8F2A /* TOCropToolbar.m in Sources */ = {isa = PBXBuildFile; fileRef = 666D80431EFA0EA9008A8F2A /* TOCropToolbar.m */; };
 		666D80491EFA0EA9008A8F2A /* TOCropView.m in Sources */ = {isa = PBXBuildFile; fileRef = 666D80451EFA0EA9008A8F2A /* TOCropView.m */; };
 		666D80651EFA23CB008A8F2A /* CACropImageController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 666D80631EFA23CB008A8F2A /* CACropImageController.mm */; };
+		6689178D20DC8A230038B0A1 /* CAMultiCameraController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6689178C20DC8A230038B0A1 /* CAMultiCameraController.mm */; };
 		B3E7B58A1CC2AC0600A0062D /* RNSmImagepicker.m in Sources */ = {isa = PBXBuildFile; fileRef = B3E7B5891CC2AC0600A0062D /* RNSmImagepicker.m */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,8 @@
 		666D80451EFA0EA9008A8F2A /* TOCropView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TOCropView.m; path = TOCropViewController/Views/TOCropView.m; sourceTree = "<group>"; };
 		666D80631EFA23CB008A8F2A /* CACropImageController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CACropImageController.mm; sourceTree = "<group>"; };
 		666D80641EFA23CB008A8F2A /* CACropImageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CACropImageController.h; sourceTree = "<group>"; };
+		6689178B20DC8A230038B0A1 /* CAMultiCameraController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAMultiCameraController.h; sourceTree = "<group>"; };
+		6689178C20DC8A230038B0A1 /* CAMultiCameraController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CAMultiCameraController.mm; sourceTree = "<group>"; };
 		B3E7B5881CC2AC0600A0062D /* RNSmImagepicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RNSmImagepicker.h; sourceTree = "<group>"; };
 		B3E7B5891CC2AC0600A0062D /* RNSmImagepicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RNSmImagepicker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -112,6 +115,8 @@
 		58B511D21A9E6C8500147676 = {
 			isa = PBXGroup;
 			children = (
+				6689178B20DC8A230038B0A1 /* CAMultiCameraController.h */,
+				6689178C20DC8A230038B0A1 /* CAMultiCameraController.mm */,
 				666D80121EFA0DA5008A8F2A /* TOCropViewController */,
 				6627B8931EC2F7230009E8DE /* CACameraController.h */,
 				6627B8941EC2F7230009E8DE /* CACameraController.mm */,
@@ -251,6 +256,7 @@
 				666D803B1EFA0E98008A8F2A /* TOCroppedImageAttributes.m in Sources */,
 				6627B88E1EC2F7110009E8DE /* TZPhotoPreviewCell.m in Sources */,
 				666D80461EFA0EA9008A8F2A /* TOCropOverlayView.m in Sources */,
+				6689178D20DC8A230038B0A1 /* CAMultiCameraController.mm in Sources */,
 				666D80651EFA23CB008A8F2A /* CACropImageController.mm in Sources */,
 				666D80491EFA0EA9008A8F2A /* TOCropView.m in Sources */,
 				666D80481EFA0EA9008A8F2A /* TOCropToolbar.m in Sources */,

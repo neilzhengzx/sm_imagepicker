@@ -64,6 +64,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   private static final int MULTIIMAGE = 13;
   private static final int CROPIMAGE = 14;
   private static final int SELECT_VIDEO = 15;
+  private static final int MULTI_CAMERA = 16;
 
   private static int videoQuality = 1;
   private static int videoDurationLimit = 15;
@@ -101,7 +102,9 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       mCameraAndAlbumQuality = params.getInt("quality");
     }
 
-    imageCapture();
+//    imageCapture();
+
+    multiCamera();
   }
 
 
@@ -275,6 +278,17 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     videoCamera();
   }
 
+  @ReactMethod
+  public void imageFromMultiCamera(ReadableMap params, Callback callback) {
+    mCallBack = callback;
+
+    if (getActivity() == false) {
+      return;
+    }
+
+    multiCamera();
+  }
+
   public Boolean getActivity(){
     mCurrentActivety = getCurrentActivity();
     if (mCurrentActivety == null) {
@@ -368,6 +382,15 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     }
   }
 
+  public void multiCamera(){
+    Intent intent = new Intent(mCurrentActivety, MultiCameraActivity.class);
+    try{
+      mCurrentActivety.startActivityForResult(intent, MULTI_CAMERA);
+    } catch (Exception e){
+      callbackWithSuccess("","",0);
+    }
+  }
+
   public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent intent) {
     if (resultCode == activity.RESULT_OK) {
       switch (requestCode) {
@@ -450,6 +473,10 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
             return;
           }
           compressVideoResouce(activity, videoPath);
+          break;
+        case MULTI_CAMERA:
+          callbackWithSuccess("", "", 0);
+          break;
         default:
           break;
       }

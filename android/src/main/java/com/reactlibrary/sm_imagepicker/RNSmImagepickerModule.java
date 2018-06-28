@@ -102,9 +102,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       mCameraAndAlbumQuality = params.getInt("quality");
     }
 
-//    imageCapture();
-
-    multiCamera();
+   imageCapture();
   }
 
 

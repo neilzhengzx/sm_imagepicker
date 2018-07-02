@@ -44,15 +44,11 @@ RCT_EXPORT_METHOD(imageFromMultiCamera:(NSDictionary *)params callback:(RCTRespo
     //imageFromMultiCamera 实现, 需要回传结果用callback(@[XXX]), 数组参数里面就一个NSDictionary元素即可
     
     int numberLimit = 3;
-    BOOL saveInAlbum = false;
     int compressedPixel = 1280;
     double quality = 0.6;
     
     if(params[@"numberLimit"]){
         numberLimit = [params[@"numberLimit"] intValue] > 0 ? [params[@"numberLimit"] intValue] : 3;
-    }
-    if(params[@"saveInAlbum"]){
-        saveInAlbum = [params[@"saveInAlbum"] boolValue];
     }
     if(params[@"compressedPixel"]){
         compressedPixel = [params[@"compressedPixel"] intValue];
@@ -65,7 +61,7 @@ RCT_EXPORT_METHOD(imageFromMultiCamera:(NSDictionary *)params callback:(RCTRespo
     if(!camera){
         camera = [[CAMultiCameraController alloc] init];
     }
-    [camera openCameraView:saveInAlbum numberLimit:numberLimit compressedPixel:compressedPixel quality:quality callback:callback];
+    [camera openCameraView:numberLimit compressedPixel:compressedPixel quality:quality callback:callback];
 }
 
 -(void)open:(ImagePickerType)type params:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback

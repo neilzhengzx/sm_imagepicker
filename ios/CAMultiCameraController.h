@@ -19,5 +19,5 @@
 
 - (UIImage *)fixOrientation:(UIImage *)image;
 
--(void)openCameraView:(BOOL)saveInAlbum numberLimit:(int)numberLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback;
+-(void)openCameraView:(int)numberLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback;
 @end

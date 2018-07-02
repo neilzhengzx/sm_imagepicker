@@ -491,7 +491,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           ArrayList<String> imagePathsList = new ArrayList<>();
           int multiNumbers = 0;
           if (intent != null){
-            imagePathsList = intent.getStringArrayListExtra("imagePaths");
+            imagePathsList = intent.getStringArrayListExtra("imagepaths");
             multiNumbers = imagePathsList.size();
           }
           final String MultiCameraPaths = MultiCameraPath;

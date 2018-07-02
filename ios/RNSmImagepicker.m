@@ -1,6 +1,7 @@
 
 #import "RNSmImagepicker.h"
 #import "CACameraController.h"
+#import "CAMultiCameraController.h"
 #import "CAMultiAlbumViewController.h"
 #import "CACropImageController.h"
 
@@ -35,6 +36,36 @@ RCT_EXPORT_METHOD(videoFromAlbum:(NSDictionary *)params callback:(RCTResponseSen
 {
     //videoFromAlbum 实现, 需要回传结果用callback(@[XXX]), 数组参数里面就一个NSDictionary元素即可
     [self open:ImagePickerVideoAlbum params:params callback:callback];
+}
+
+
+RCT_EXPORT_METHOD(imageFromMultiCamera:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback)
+{
+    //imageFromMultiCamera 实现, 需要回传结果用callback(@[XXX]), 数组参数里面就一个NSDictionary元素即可
+    
+    int numberLimit = 3;
+    BOOL saveInAlbum = false;
+    int compressedPixel = 1280;
+    double quality = 0.6;
+    
+    if(params[@"numberLimit"]){
+        numberLimit = [params[@"numberLimit"] intValue] > 0 ? [params[@"numberLimit"] intValue] : 3;
+    }
+    if(params[@"saveInAlbum"]){
+        saveInAlbum = [params[@"saveInAlbum"] boolValue];
+    }
+    if(params[@"compressedPixel"]){
+        compressedPixel = [params[@"compressedPixel"] intValue];
+    }
+    if(params[@"quality"]){
+        quality = [params[@"quality"] doubleValue] / 100;
+    }
+    
+    static CAMultiCameraController *camera = nil;
+    if(!camera){
+        camera = [[CAMultiCameraController alloc] init];
+    }
+    [camera openCameraView:saveInAlbum numberLimit:numberLimit compressedPixel:compressedPixel quality:quality callback:callback];
 }
 
 -(void)open:(ImagePickerType)type params:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback

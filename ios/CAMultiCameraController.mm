@@ -1,11 +1,3 @@
-//
-//  CACameraController.m
-//  iBook
-//
-//  Created by lh on 14-5-5.
-//
-//
-
 #import "CAMultiCameraController.h"
 #import <AVFoundation/AVCaptureDevice.h>
 #import <AVFoundation/AVMediaFormat.h>
@@ -26,9 +18,16 @@
 
 @implementation CAMultiCameraController
 
--(void)openCameraView:(RCTResponseSenderBlock)callback
+-(void)openCameraView:(BOOL)saveInAlbum numberLimit:(int)numberLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
 {
     _mCallback = callback;
+    _compressedPixel = compressedPixel;
+    _quality = quality;
+    _numberLimit = numberLimit;
+    
+    _imageCount = 0;
+    _imagePaths = @"";
+    _initalImagePaths = @"";
     
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
     imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -55,7 +54,7 @@
     
     UIView *headView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ScreenW, 40)];
     headView.backgroundColor = [UIColor blackColor];
-
+    
     //切换镜头按钮
     UIButton *changeButton = [[UIButton alloc] initWithFrame:CGRectMake(ScreenW - 60, 0, 60, 40)];
     [changeButton addTarget:self action:@selector(clickchangeButton) forControlEvents:UIControlEventTouchUpInside];
@@ -99,7 +98,7 @@
     
     imagePicker.modalPresentationStyle = UIModalPresentationCurrentContext;
     imagePicker.delegate= self;
-
+    
     _imagepickerController = imagePicker;
     self.activityIndicatorView = [[UIActivityIndicatorView alloc] initWithFrame:imagePicker.view.bounds];
     self.activityIndicatorView.center = imagePicker.view.center;
@@ -141,7 +140,7 @@
 #pragma mark -完成按钮
 - (void)clickCompleteButton {
     if(_mCallback == nil) return;
-    _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback(@[@{@"paths":_imagePaths, @"initialPaths":_initalImagePaths, @"number":[NSNumber numberWithInt:_imageCount]}]);
     _mCallback = nil;
     [ _imagepickerController dismissViewControllerAnimated:YES completion:^{
         if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
@@ -216,7 +215,14 @@
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         UIImage *newfixImage = [self fixOrientation:image];
         
+        _imageCount++;
+        
         UIImageWriteToSavedPhotosAlbum(newfixImage, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+        [self getEndImage:newfixImage];
+        
+        if(_imageCount == _numberLimit){
+            [self clickCompleteButton];
+        }
     }
 }
 
@@ -345,9 +351,8 @@
     NSString * initialpath = [[NSString alloc] initWithFormat:@"%@/%@%@", str, initailname, @".jpg" ];
     [initialData writeToFile:initialpath atomically:YES];
     
-    if(_mCallback == nil) return;
-    _mCallback(@[@{@"paths":path, @"initialPaths":initialpath, @"number":@1}]);
-    _mCallback = nil;
+    _imagePaths = [[NSString alloc] initWithFormat:@"%@%@%@", _imagePaths, path, @",*"];
+    _initalImagePaths = [[NSString alloc] initWithFormat:@"%@%@%@", _initalImagePaths, initialpath, @",*" ];
 }
 
 - (NSString *)createUUID

@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 /**
  * Created by zzx on 2018/6/25.
@@ -38,6 +39,12 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
     public static final String PATH = Environment.getExternalStorageDirectory()
             .toString() + "/AndroidMedia/";
     CameraPreview mCameraPreview;
+
+    private static int mCameraNumberLimit = 3;
+    private static int mImageCount = 0;
+
+    ArrayList<String> mImagePaths;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +59,10 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
 
         mCameraPreview.setFocusView(focusView);
         mCameraPreview.setOnCameraStatusListener(this);
+
+        mImagePaths = new ArrayList<>();
+        mImageCount = 0;
+        mCameraNumberLimit = getIntent().getIntExtra("numberLimit", 3);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -113,6 +124,7 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
 
     public void successClose(View view) {
         Intent i = new Intent();
+        i.putStringArrayListExtra("imagepaths", mImagePaths);
         setResult(RESULT_OK, i);
         finish();
     }
@@ -136,8 +148,15 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
         Uri source = insertImage(getContentResolver(), filename, dateTaken, PATH,
                 filename, bitmap, data);
 
-        //继续启动摄像头
-        mCameraPreview.start();
+        mImageCount ++;
+        mImagePaths.add(PATH + filename);
+
+        if(mImageCount == mCameraNumberLimit){
+            successClose(null);
+        }else{
+            //继续启动摄像头
+            mCameraPreview.start();
+        }
     }
 
     /**

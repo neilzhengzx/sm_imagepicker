@@ -69,6 +69,9 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   private static int videoQuality = 1;
   private static int videoDurationLimit = 15;
 
+  //连续拍照最大张数限制
+  private static int mMultiCameraNumberLimit = 3;
+
   public static String TAG = "ReactNativeJS";
 
   public RNSmImagepickerModule(ReactApplicationContext reactContext) {
@@ -250,7 +253,6 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       }
       videoAlbum();
     }
-
   }
 
   @ReactMethod
@@ -283,6 +285,17 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     if (getActivity() == false) {
       return;
     }
+
+    if (params.hasKey("numberLimit")) {
+      mMultiCameraNumberLimit = params.getInt("numberLimit");
+    }
+    if (params.hasKey("compressedPixel")) {
+      mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
+    }
+    if (params.hasKey("quality")) {
+      mCameraAndAlbumQuality = params.getInt("quality");
+    }
+
 
     multiCamera();
   }
@@ -382,6 +395,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
   public void multiCamera(){
     Intent intent = new Intent(mCurrentActivety, MultiCameraActivity.class);
+    intent.putExtra("numberLimit", mMultiCameraNumberLimit);
     try{
       mCurrentActivety.startActivityForResult(intent, MULTI_CAMERA);
     } catch (Exception e){
@@ -473,7 +487,23 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           compressVideoResouce(activity, videoPath);
           break;
         case MULTI_CAMERA:
-          callbackWithSuccess("", "", 0);
+          String MultiCameraPath = "";
+          ArrayList<String> imagePathsList = new ArrayList<>();
+          int multiNumbers = 0;
+          if (intent != null){
+            imagePathsList = intent.getStringArrayListExtra("imagePaths");
+            multiNumbers = imagePathsList.size();
+          }
+          final String MultiCameraPaths = MultiCameraPath;
+          final int multiCameraNumbers  = multiNumbers;
+          getImagesThumbnail(mCurrentActivety, imagePathsList, new SaveThumbListerner(){
+
+            @Override
+            public void finishToSaveThumb(String thumbPath) {
+              if(thumbPath.equalsIgnoreCase("")) thumbPath = MultiCameraPaths;
+              callbackWithSuccess(thumbPath, MultiCameraPaths, multiCameraNumbers);
+            }
+          });
           break;
         default:
           break;

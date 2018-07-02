@@ -1,11 +1,3 @@
-//
-//  CACameraController.h
-//  iBook
-//
-//  Created by lh on 14-5-5.
-//
-//
-
 #import <UIKit/UIKit.h>
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
@@ -20,10 +12,12 @@
 @property (nonatomic, copy) RCTResponseSenderBlock mCallback;
 @property int compressedPixel;
 @property double quality;
-@property int videoQuality;
-@property BOOL isEdit;
+@property int imageCount;
+@property int numberLimit;
+@property NSString *imagePaths;
+@property NSString *initalImagePaths;
 
 - (UIImage *)fixOrientation:(UIImage *)image;
 
--(void)openCameraView:(RCTResponseSenderBlock)callback;
+-(void)openCameraView:(BOOL)saveInAlbum numberLimit:(int)numberLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback;
 @end

@@ -87,7 +87,7 @@
     [bottomView addSubview:cancleButton];
     //完成按钮
     UIButton *completeButton = [[UIButton alloc] initWithFrame:CGRectMake(ScreenW - 80, 0, 60, 100)];
-    [completeButton addTarget:self action:@selector(clickBackButton) forControlEvents:UIControlEventTouchUpInside];
+    [completeButton addTarget:self action:@selector(clickCompleteButton) forControlEvents:UIControlEventTouchUpInside];
     [completeButton setTitle:@"完成" forState:UIControlStateNormal];
     [completeButton setTintColor:[UIColor whiteColor]];
     [bottomView addSubview:completeButton];

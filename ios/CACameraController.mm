@@ -124,11 +124,8 @@
         UIImage *newfixImage = [self fixOrientation:image];
         
         if(_isEdit){
-            TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:newfixImage];
-            cropViewController.delegate = self;
-            [picker dismissViewControllerAnimated:YES completion:^{
-                [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
-            }];
+            KKImageEditorViewController *editor = [[KKImageEditorViewController alloc] initWithImage:image delegate:self];
+            [picker pushViewController:editor animated:YES];
         }else{
             [self getEndImage:newfixImage];
             [picker dismissViewControllerAnimated:YES completion:^{
@@ -174,6 +171,7 @@
         }
     }];
 }
+
 - (UIImage *)fixOrientation:(UIImage *)srcImg {
     if (srcImg.imageOrientation == UIImageOrientationUp) return srcImg;
     CGAffineTransform transform = CGAffineTransformIdentity;
@@ -244,29 +242,26 @@
     return img;
 }
 
-#pragma mark - Cropper Delegate -
-- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+#pragma mark - EditImage Delegate -
+- (void)imageDidFinishEdittingWithImage:(UIImage*)image
 {
-    [cropViewController dismissViewControllerAnimated:YES completion:^{
-        [self getEndImage:image];
-        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
-            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-        }
-    }];
+    [self getEndImage:image];
+    if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }
 }
 
-- (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
-{    
+- (void)imageDidFinishEdittingCancel:(UIImage*)image
+{
+    if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }
     if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     _mCallback = nil;
-    [cropViewController dismissViewControllerAnimated:YES completion:^{
-        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
-            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-        }
-    }];
 }
 
+#pragma mark - getImage -
 - (void)getEndImage:(UIImage*)newfixImage
 {
     CGSize size ;

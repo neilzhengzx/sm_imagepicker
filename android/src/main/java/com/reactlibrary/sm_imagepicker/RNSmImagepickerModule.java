@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.UUID;
 
+import me.kareluo.imaging.IMGEditActivity;
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements ActivityEventListener{
@@ -211,7 +212,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       bos = new BufferedOutputStream(fos);
       bos.write(btImg);
 
-      cropImageFromFile(file, CROPIMAGE);
+      editImageUri(cropImagePath, CROPIMAGE);
     } catch (Exception e){
       callbackWithSuccess("","",0);
     }finally {
@@ -430,7 +431,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           }
           else
           {
-            cropImageUri(path2, CROPIMAGE);
+            editImageUri(path2, CROPIMAGE);
           }
           break;
         case MULTIIMAGE:
@@ -629,34 +630,19 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     thumbget.start();
   }
 
-  private static void cropImageUri(String path, int requestCode)
+  private static void editImageUri(String path, int requestCode)
   {
-    File initialImage = new File(path);
-    cropImageFromFile(initialImage, requestCode);
-  }
-
-  private static void cropImageFromFile(File initialImage, int requestCode)
-  {
+    Intent intent = new Intent(mCurrentActivety, IMGEditActivity.class);
+    intent.putExtra(IMGEditActivity.EXTRA_IMAGE_PATH, path);
     File thumbDir = new File(mCurrentActivety.getExternalCacheDir()+"/UploadImage/");
     if(!thumbDir.exists())
     {
       thumbDir.mkdir();
     }
     cropImagePath = mCurrentActivety.getExternalCacheDir()+"/UploadImage/"+getUUID() + ".jpg";
-    File tempFile = new File(cropImagePath);
+    new File(cropImagePath);
+    intent.putExtra(IMGEditActivity.EXTRA_IMAGE_SAVE_PATH, cropImagePath);
 
-    Intent intent = new Intent("com.android.camera.action.CROP");
-    intent.setDataAndType(Uri.fromFile(initialImage), "image/*");
-    intent.putExtra("crop", "true");
-//    intent.putExtra("aspectX", 1);   //不设置时可动态改变长宽比
-//    intent.putExtra("aspectY", 1);
-//    intent.putExtra("outputX", 400);  //不设置时不固定像素大小
-//    intent.putExtra("outputY", 400);
-    intent.putExtra("scale", true);
-    intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
-    intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-    intent.putExtra("return-data", false);
-    intent.putExtra("noFaceDetection", true);
     mCurrentActivety.startActivityForResult(intent, requestCode);
   }
 

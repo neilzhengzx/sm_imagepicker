@@ -33,8 +33,11 @@
     NSURL *imageUrl = [NSURL URLWithString: url];
     UIImage *imagea = [UIImage imageWithData: [NSData dataWithContentsOfURL:imageUrl]];
     
-    TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:imagea];
-    cropViewController.delegate = self;
+//    TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:imagea];
+//    cropViewController.delegate = self;
+    
+    KKImageEditorViewController *cropViewController = [[KKImageEditorViewController alloc] initWithImage:imagea delegate:self];
+    
     _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
     [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleLightContent];
     [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
@@ -49,24 +52,43 @@
     return newImage;
 }
 
-#pragma mark - Cropper Delegate -
-- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+#pragma mark - EditImage Delegate -
+- (void)imageDidFinishEdittingWithImage:(UIImage*)image
 {
-    [cropViewController dismissViewControllerAnimated:YES completion:^{
-        [self getEndImage:image];
+    [self getEndImage:image];
+    if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    }];
+    }
 }
 
-- (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+- (void)imageDidFinishEdittingCancel:(UIImage*)image
 {
+    if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+    }
     if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     _mCallback = nil;
-    [cropViewController dismissViewControllerAnimated:YES completion:^{
-        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
-    }];
 }
+
+//#pragma mark - Cropper Delegate -
+//- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+//{
+//    [cropViewController dismissViewControllerAnimated:YES completion:^{
+//        [self getEndImage:image];
+//        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+//    }];
+//}
+//
+//- (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+//{
+//    if(_mCallback == nil) return;
+//    _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+//    _mCallback = nil;
+//    [cropViewController dismissViewControllerAnimated:YES completion:^{
+//        [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+//    }];
+//}
 
 - (void)getEndImage:(UIImage*)newfixImage
 {

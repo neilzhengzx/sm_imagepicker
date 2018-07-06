@@ -10,14 +10,14 @@
 #define CACropImageController_h
 
 #import <UIKit/UIKit.h>
-#import "TOCropViewController.h"
+#import "KKImageEditorViewController.h"
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
 #else
 #import <React/RCTBridgeModule.h>
 #endif
 
-@interface CACropImageController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate,TOCropViewControllerDelegate>
+@interface CACropImageController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate,KKImageEditorDelegate>
 {
     UIStatusBarStyle _UIStatusBarStyle;
 }

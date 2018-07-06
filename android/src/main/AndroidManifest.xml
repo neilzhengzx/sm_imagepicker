@@ -8,6 +8,14 @@
 
     <application >
         <activity android:name=".MultiCameraActivity"></activity>
+        <activity
+            android:name="me.kareluo.imaging.IMGGalleryActivity"
+            android:theme="@style/ImageGalleryTheme" />
+
+        <activity
+            android:name="me.kareluo.imaging.IMGEditActivity"
+            android:theme="@style/ImageEditTheme"
+            android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 </manifest>
   

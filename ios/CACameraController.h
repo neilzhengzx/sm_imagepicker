@@ -7,14 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TOCropViewController.h"
+#import "KKImageEditorViewController.h"
 #if __has_include("RCTBridgeModule.h")
 #import "RCTBridgeModule.h"
 #else
 #import <React/RCTBridgeModule.h>
 #endif
 
-@interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate,TOCropViewControllerDelegate>
+@interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate, KKImageEditorDelegate>
 {
     UIStatusBarStyle _UIStatusBarStyle;
 }

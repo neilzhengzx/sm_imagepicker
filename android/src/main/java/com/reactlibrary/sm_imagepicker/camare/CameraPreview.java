@@ -2,12 +2,13 @@ package com.reactlibrary.sm_imagepicker.camare;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.ShutterCallback;
+import android.hardware.Camera.Size;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -22,6 +23,8 @@ import com.reactlibrary.sm_imagepicker.MultiCameraUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -31,10 +34,11 @@ import java.util.List;
 
 public class CameraPreview extends SurfaceView implements
         SurfaceHolder.Callback, AutoFocusCallback {
-    private static final String TAG = "CameraPreview";
+    private static final String TAG = "ReactNativeJS";
 
     private int viewWidth = 0;
     private int viewHeight = 0;
+    private final CameraSizeComparator sizeComparator = new CameraSizeComparator();
 
     /** 监听接口 */
     private OnCameraStatusListener listener;
@@ -59,6 +63,13 @@ public class CameraPreview extends SurfaceView implements
             if (null != listener) {
                 listener.onCameraStopped(data);
             }
+        }
+    };
+
+    private ShutterCallback shutterCallback = new ShutterCallback() {
+        @Override
+        public void onShutter() {
+            // 按下快门之后进行的操作
         }
     };
 
@@ -252,17 +263,7 @@ public class CameraPreview extends SurfaceView implements
     private void updateCameraParameters() {
         if (camera != null) {
             Camera.Parameters p = camera.getParameters();
-
             setParameters(p);
-
-            try {
-                camera.setParameters(p);
-            } catch (Exception e) {
-                Camera.Size previewSize = findBestPreviewSize(p);
-                p.setPreviewSize(previewSize.width, previewSize.height);
-                p.setPictureSize(previewSize.width, previewSize.height);
-                camera.setParameters(p);
-            }
         }
     }
 
@@ -280,13 +281,28 @@ public class CameraPreview extends SurfaceView implements
         p.setGpsTimestamp(time);
         // 设置照片格式
         p.setPictureFormat(PixelFormat.JPEG);
-        Camera.Size previewSize = findPreviewSizeByScreen(p);
-        p.setPreviewSize(previewSize.width, previewSize.height);
-        p.setPictureSize(previewSize.width, previewSize.height);
+
+        //图片大小
+        Size pictureSize = getPictureSize(p.getSupportedPictureSizes(), 800);
+//        //预览大小
+        Size previewSize = getPreviewSize(p.getSupportedPreviewSizes(), viewHeight);
+        if(previewSize!=null) {
+            p.setPreviewSize(previewSize.width, previewSize.height);
+        }
+        if(pictureSize!=null) {
+            p.setPictureSize(pictureSize.width, pictureSize.height);
+        }
+
+        camera.setDisplayOrientation(90);
         p.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-        if (getContext().getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE) {
-            camera.setDisplayOrientation(90);
-            p.setRotation(90);
+
+        try {
+            camera.setParameters(p);
+        } catch (Exception e) {
+            Size previewSize2 = findBestPreviewSize(p);
+            p.setPreviewSize(previewSize2.width, previewSize2.height);
+            p.setPictureSize(previewSize2.width, previewSize2.height);
+            camera.setParameters(p);
         }
     }
 
@@ -294,14 +310,14 @@ public class CameraPreview extends SurfaceView implements
     public void takePicture() {
         if (camera != null) {
             try {
-                camera.takePicture(null, null, pictureCallback);
+                camera.takePicture(shutterCallback, null, pictureCallback);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
 
-    // 设置监听事件
+        // 设置监听事件
     public void setOnCameraStatusListener(OnCameraStatusListener listener) {
         this.listener = listener;
     }
@@ -487,6 +503,59 @@ public class CameraPreview extends SurfaceView implements
                 mFocusView.setY((MultiCameraUtils.getHeightInPx(getContext())-mFocusView.getHeight()) / 2);
                 mFocusView.beginFocus();
             } catch (Exception e) {
+            }
+        }
+    }
+
+    public  Size getPreviewSize(List<Camera.Size> list, int th){
+        Collections.sort(list, sizeComparator);
+        Size size=null;
+        for(int i=0;i<list.size();i++){
+            size=list.get(i);
+            int x = Math.max(viewWidth, viewHeight);
+            int y = Math.min(viewWidth, viewHeight);
+            if((size.width>th)&&equalRate(size, (float)x/y)){
+                break;
+            }
+        }
+        return size;
+    }
+
+    public Size getPictureSize(List<Camera.Size> list, int th){
+        Collections.sort(list, sizeComparator);
+        Size size=null;
+        for(int i=0;i<list.size();i++){
+            size=list.get(i);
+            int x = Math.max(viewWidth, viewHeight);
+            int y = Math.min(viewWidth, viewHeight);
+            if(size.width>th && equalRate(size, (float)x/y)){
+                break;
+            }
+        }
+        return size;
+    }
+
+    public boolean equalRate(Size s, float rate) {
+        float r = (float) (s.width) / (float) (s.height);
+        if (Math.abs(r - rate) <= 0.1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    //图片尺寸获取
+    public  class CameraSizeComparator implements Comparator<Size> {
+        //按升序排列
+        @Override
+        public int compare(Size lhs, Size rhs) {
+            // TODO Auto-generated method stub
+            if (lhs.width == rhs.width) {
+                return 0;
+            } else if (lhs.width > rhs.width) {
+                return 1;
+            } else {
+                return -1;
             }
         }
     }

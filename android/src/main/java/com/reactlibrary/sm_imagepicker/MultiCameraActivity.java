@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -52,6 +53,18 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+            View v = this.getWindow().getDecorView();
+            v.setSystemUiVisibility(View.GONE);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            //for new api versions.
+            View decorView = getWindow().getDecorView();
+            int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+
         setContentView(R.layout.activity_take_photo);
         // Initialize components of the app
         mCameraPreview = (CameraPreview) findViewById(R.id.cameraPreview);
@@ -139,17 +152,24 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
         Log.i("TAG", "==onCameraStopped==");
         // 创建图像
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+
+        Matrix matrix = new Matrix();
+        matrix.postRotate((float)90.0);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+
         // 系统时间
         long dateTaken = System.currentTimeMillis();
         // 图像名称
         String filename = DateFormat.format("yyyy-MM-dd kk.mm.ss", dateTaken)
                 .toString() + ".jpg";
+        String filePath = PATH + filename;
+        Log.d(TAG, "imageth:" + filePath);
         // 存储图像（PATH目录）
-        Uri source = insertImage(getContentResolver(), filename, dateTaken, PATH,
+        insertImage(getContentResolver(), filename, dateTaken, PATH,
                 filename, bitmap, data);
 
-        mImageCount ++;
-        mImagePaths.add(PATH + filename);
+        mImageCount++;
+        mImagePaths.add(filePath);
 
         if(mImageCount == mCameraNumberLimit){
             successClose(null);

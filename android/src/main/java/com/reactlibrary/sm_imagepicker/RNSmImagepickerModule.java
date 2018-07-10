@@ -494,9 +494,17 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           if (intent != null){
             imagePathsList = intent.getStringArrayListExtra("imagepaths");
             multiNumbers = imagePathsList.size();
+
+            Iterator<String> it1 = imagePathsList.iterator();
+            while(it1.hasNext())
+            {
+              String image = it1.next();
+              MultiCameraPath += image  + ",*";
+            }
           }
           final String MultiCameraPaths = MultiCameraPath;
           final int multiCameraNumbers  = multiNumbers;
+
           getImagesThumbnail(mCurrentActivety, imagePathsList, new SaveThumbListerner(){
 
             @Override

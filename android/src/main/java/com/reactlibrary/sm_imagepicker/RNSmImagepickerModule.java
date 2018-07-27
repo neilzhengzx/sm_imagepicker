@@ -879,7 +879,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       @Override
       public void onSaveVideoFailed(final int errorCode) {
         Log.d(TAG, "save failed: " + errorCode);
-        callbackWithSuccess("","",0);
+        callbackWithSuccess(filepath, filepath, 1);
         resetDialog();
       }
 

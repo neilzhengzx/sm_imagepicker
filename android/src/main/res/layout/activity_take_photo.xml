@@ -31,12 +31,14 @@
 
             <ImageView
                 android:id="@+id/imageView5"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_alignParentRight="true"
-                android:layout_marginTop="20dp"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="10dp"
                 android:onClick="change"
                 android:padding="5dp"
+                android:clickable="true"
                 android:src="@drawable/camera_switch" />
 
             <ImageView
@@ -80,6 +82,7 @@
                 android:onClick="cancelClose"
                 android:padding="5dp"
                 android:text="取消"
+                android:clickable="true"
                 android:textColor="#ffffff"
                 android:textSize="18sp" />
 
@@ -104,6 +107,7 @@
                 android:onClick="successClose"
                 android:padding="5dp"
                 android:text="完成"
+                android:clickable="true"
                 android:textColor="#ffffff"
                 android:textSize="18sp" />
         </RelativeLayout>

@@ -17,6 +17,7 @@
 @interface CACameraController : NSObject<UINavigationControllerDelegate,UIImagePickerControllerDelegate, KKImageEditorDelegate>
 {
     UIStatusBarStyle _UIStatusBarStyle;
+    BOOL  _statusBarHidden;
 }
 @property (nonatomic, copy) RCTResponseSenderBlock mCallback;
 @property int compressedPixel;

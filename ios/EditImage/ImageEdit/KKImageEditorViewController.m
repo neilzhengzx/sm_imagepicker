@@ -63,7 +63,7 @@
     if([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]){
         self.navigationController.interactivePopGestureRecognizer.enabled = NO;
     }
-    
+        
     [self.view setBackgroundColor:[KKImageEditorTheme theme].backgroundColor];
     self.title = self.toolInfo.title;
     [self initMenuView];
@@ -82,12 +82,14 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
     [self refreshImageView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateNavigationItem) name:KTextEditDoneNotification object:nil];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

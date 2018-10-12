@@ -37,6 +37,8 @@
     
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
     
+    _statusBarHidden = [UIApplication sharedApplication].statusBarHidden;
+    _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
     if(type == ImagePickerImageCamera || type == ImagePickerVideoCamera){
         imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
         
@@ -53,7 +55,6 @@
         if(type == ImagePickerVideoAlbum) imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
         else imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
         
-        _UIStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
         [[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleDefault];
         
         imagePicker.navigationBar.barStyle = UIBarStyleBlackTranslucent;
@@ -246,6 +247,10 @@
 - (void)imageDidFinishEdittingWithImage:(UIImage*)image
 {
     [self getEndImage:image];
+    
+    if(_statusBarHidden != [UIApplication sharedApplication].statusBarHidden){
+        [UIApplication sharedApplication].statusBarHidden = _statusBarHidden;
+    }
     if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     }
@@ -253,6 +258,9 @@
 
 - (void)imageDidFinishEdittingCancel:(UIImage*)image
 {
+    if(_statusBarHidden != [UIApplication sharedApplication].statusBarHidden){
+        [UIApplication sharedApplication].statusBarHidden = _statusBarHidden;
+    }
     if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
         [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
     }

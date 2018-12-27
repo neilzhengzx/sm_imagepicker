@@ -1,33 +1,26 @@
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-    }
-}
-
 apply plugin: 'com.android.library'
 
+def safeExtGet(prop, fallback) {
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+}
+
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion safeExtGet('compileSdkVersion', 26)
+    buildToolsVersion safeExtGet('buildToolsVersion', '26.0.2')
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion safeExtGet('minSdkVersion', 16)
+        targetSdkVersion safeExtGet('targetSdkVersion', 26)
         versionCode 1
         versionName "1.0"
     }
     lintOptions {
         abortOnError false
     }
-    
+
     buildTypes {
         release {
-            proguardFiles  getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-rules.pro'
         }
     }
 }
@@ -45,8 +38,8 @@ dependencies {
     compile 'com.facebook.react:react-native:+'
     compile 'com.github.lovetuzitong:MultiImageSelector:1.2'
     compile files('libs/pldroid-shortvideo-1.10.0.jar')
-    compile "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:appcompat-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
     compile "com.facebook.fresco:fresco:$rootProject.ext.gifVersion"
-    compile "com.android.support:recyclerview-v7:$rootProject.ext.supportLibraryVersion"
+    compile "com.android.support:recyclerview-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
 }
   

@@ -354,8 +354,7 @@ public class ImageUtils {
                 .createBitmap(dstBmp.getWidth(), dstBmp.getHeight(), Config.ARGB_8888);
         Canvas canvas = new Canvas(result);
         int sc = canvas.saveLayer(0, 0, canvas.getWidth(), canvas.getHeight(), null,
-                Canvas.MATRIX_SAVE_FLAG | Canvas.CLIP_SAVE_FLAG | Canvas.HAS_ALPHA_LAYER_SAVE_FLAG
-                        | Canvas.FULL_COLOR_LAYER_SAVE_FLAG | Canvas.CLIP_TO_LAYER_SAVE_FLAG);
+                Canvas.ALL_SAVE_FLAG);
         canvas.drawBitmap(mask, new Rect(0, 0, mask.getWidth(), mask.getHeight()), new Rect(0, 0,
                 dstBmp.getWidth(), dstBmp.getHeight()), null);
         canvas.drawBitmap(dstBmp, 0, 0, SRC_IN_PAINT);
@@ -471,25 +470,25 @@ public class ImageUtils {
         return roundedSize;
     }
 
-	/**
-	 * A safer decodeStream mthod
-	 * rather than the one of {@link BitmapFactory}
-	 * which will be easy to get OutOfMemory Exception
-	 * while loading a big image file.
-	 *
-	 * @return
-	 * @throws FileNotFoundException
-	 */
-	public static Bitmap safeDecodeStream(String path, int height, int width)
-	throws FileNotFoundException{
-		//获取图片的旋转角度，有些系统把拍照的图片旋转了，有的没有旋转
-		int degree = ImageUtils.readPictureDegree(path);
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;// 设置成了true,不占用内存，只获取bitmap宽高
-		BitmapFactory.decodeFile(path, options);
+    /**
+     * A safer decodeStream mthod
+     * rather than the one of {@link BitmapFactory}
+     * which will be easy to get OutOfMemory Exception
+     * while loading a big image file.
+     *
+     * @return
+     * @throws FileNotFoundException
+     */
+    public static Bitmap safeDecodeStream(String path, int height, int width)
+    throws FileNotFoundException{
+        //获取图片的旋转角度，有些系统把拍照的图片旋转了，有的没有旋转
+        int degree = ImageUtils.readPictureDegree(path);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;// 设置成了true,不占用内存，只获取bitmap宽高
+        BitmapFactory.decodeFile(path, options);
 
-		int imageHeight = options.outHeight;
-		int imageWidth = options.outWidth;
+        int imageHeight = options.outHeight;
+        int imageWidth = options.outWidth;
 
         options.inDither = false;
         options.inPreferredConfig = Config.RGB_565;
@@ -502,8 +501,8 @@ public class ImageUtils {
         options.inSampleSize /= 2;
 
         // Decode with inSampleSize option
-		options.inJustDecodeBounds = false;		
-		Bitmap bmp = BitmapFactory.decodeFile(path, options);
+        options.inJustDecodeBounds = false;     
+        Bitmap bmp = BitmapFactory.decodeFile(path, options);
 
         Matrix matrix = new Matrix();
 
@@ -525,6 +524,6 @@ public class ImageUtils {
 
         bmp = ImageUtils.rotaingImageView(degree, resizedBitmap);
 
-		return bmp;
-	}
+        return bmp;
+    }
 }

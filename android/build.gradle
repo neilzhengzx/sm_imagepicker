@@ -35,11 +35,11 @@ repositories {
 }
 
 dependencies {
-    compile 'com.facebook.react:react-native:+'
-    compile 'com.github.lovetuzitong:MultiImageSelector:1.2'
-    compile files('libs/pldroid-shortvideo-1.10.0.jar')
-    compile "com.android.support:appcompat-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
-    compile "com.facebook.fresco:fresco:$rootProject.ext.gifVersion"
-    compile "com.android.support:recyclerview-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
+    compileOnly 'com.facebook.react:react-native:+'
+    implementation 'com.github.lovetuzitong:MultiImageSelector:1.2'
+    api files('libs/pldroid-shortvideo-1.10.0.jar')
+    implementation "com.android.support:appcompat-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
+    implementation "com.facebook.fresco:fresco:$rootProject.ext.gifVersion"
+    implementation "com.android.support:recyclerview-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
 }
   

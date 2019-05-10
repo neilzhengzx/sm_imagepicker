@@ -271,12 +271,6 @@ public class CameraPreview extends SurfaceView implements
      * @param p
      */
     private void setParameters(Camera.Parameters p) {
-        List<String> focusModes = p.getSupportedFocusModes();
-        if (focusModes
-                .contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-        }
-
         long time = new Date().getTime();
         p.setGpsTimestamp(time);
         // 设置照片格式
@@ -295,6 +289,12 @@ public class CameraPreview extends SurfaceView implements
 
         camera.setDisplayOrientation(90);
         p.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+
+        List<String> focusModes = p.getSupportedFocusModes();
+        if (focusModes
+                .contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            p.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        }
 
         try {
             camera.setParameters(p);

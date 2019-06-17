@@ -12,6 +12,15 @@
             android:name="me.kareluo.imaging.IMGEditActivity"
             android:theme="@style/ImageEditTheme"
             android:windowSoftInputMode="stateAlwaysHidden" />
+
+        <activity
+            android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
+            android:label="Picture">
+            <intent-filter>
+                <action android:name="react.native.sm.imagepicker.ShowMultiImage" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
   

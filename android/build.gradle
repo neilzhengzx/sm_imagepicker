@@ -36,7 +36,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.smobiler:MultiImageSelector:1.2'
+    implementation 'com.smobiler:MultiImageSelector:1.2.1'
     api files('libs/pldroid-shortvideo-1.10.0.jar')
     implementation "com.android.support:appcompat-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
     implementation "com.facebook.fresco:fresco:$rootProject.ext.gifVersion"

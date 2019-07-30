@@ -125,14 +125,19 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     }
 
     mCameraAndAlbumIsScale = false;
+    mAspectX = 1;
+    mAspectY = 1;
     if (params.hasKey("isEdit")) {
       mCameraAndAlbumIsEdit = params.getBoolean("isEdit");
     }
-    if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
-      mCameraAndAlbumIsScale = true;
-      mAspectX = params.getInt("aspectX");
-      mAspectY = params.getInt("aspectY");
+    if (params.hasKey("isScale")) {
+      mCameraAndAlbumIsScale = params.getBoolean("isScale");
+      if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
+        mAspectX = params.getInt("aspectX");
+        mAspectY = params.getInt("aspectY");
+      }
     }
+    
     if (params.hasKey("compressedPixel")) {
       mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
     }
@@ -180,12 +185,16 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     if (params.hasKey("compressedPixel")) {
       mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
     }
-
+    
     mCameraAndAlbumIsScale = false;
-    if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
-      mCameraAndAlbumIsScale = true;
-      mAspectX = params.getInt("aspectX");
-      mAspectY = params.getInt("aspectY");
+    mAspectX = 1;
+    mAspectY = 1;
+    if (params.hasKey("isScale")) {
+      mCameraAndAlbumIsScale = params.getBoolean("isScale");
+      if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
+        mAspectX = params.getInt("aspectX");
+        mAspectY = params.getInt("aspectY");
+      }
     }
 
     String imageUrl = "";
@@ -231,9 +240,9 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       bos.write(btImg);
 
       if(mCameraAndAlbumIsScale){
-        editImageUri(cropImagePath, EDITIMAGE);
-      }else{
         cropImageUri(cropImagePath, CROPIMAGE);
+      }else{
+        editImageUri(cropImagePath, EDITIMAGE);
       }
     } catch (Exception e){
       callbackWithSuccess("","",0);
@@ -451,13 +460,10 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
               }
             });
           }
-          else
-          {
-            if(mCameraAndAlbumIsScale){
-              editImageUri(path2, EDITIMAGE);
-            }else{
-              cropImageUri(path2, CROPIMAGE);
-            }
+          else if(mCameraAndAlbumIsScale){
+            cropImageUri(cropImagePath, CROPIMAGE);
+          }else{
+            editImageUri(cropImagePath, EDITIMAGE);
           }
           break;
         case MULTIIMAGE:

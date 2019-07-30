@@ -26,7 +26,7 @@
 
 @implementation CACameraController
 
--(void)openCameraView:(ImagePickerType)type allowEdit:(BOOL)allowEdit videoQuality:(int)videoQuality durationLimit:(int)durationLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
+-(void)openCameraView:(ImagePickerType)type allowEdit:(BOOL)allowEdit isScale:(BOOL)isScale aspectX:(int)aspectX aspectY:(int)aspectY videoQuality:(int)videoQuality durationLimit:(int)durationLimit compressedPixel:(int)compressedPixel quality:(double)quality callback:(RCTResponseSenderBlock)callback
 {
     _mCallback = callback;
  
@@ -34,6 +34,9 @@
     _quality = quality;
     _isEdit = allowEdit;
     _videoQuality = videoQuality;
+    _isScale = isScale;
+    _aspectX = aspectX;
+    _aspectY = aspectY;
     
     UIImagePickerController *imagePicker = [[UIImagePickerController alloc] init];
     
@@ -125,8 +128,19 @@
         UIImage *newfixImage = [self fixOrientation:image];
         
         if(_isEdit){
-            KKImageEditorViewController *editor = [[KKImageEditorViewController alloc] initWithImage:image delegate:self];
-            [picker pushViewController:editor animated:YES];
+            if(_isScale){
+                TOCropViewController *cropViewController = [[TOCropViewController alloc] initWithImage:newfixImage];
+                cropViewController.delegate = self;
+                [cropViewController setAspectX:_aspectX];
+                [cropViewController setAspectY:_aspectY];
+                [picker dismissViewControllerAnimated:YES completion:^{
+                    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:cropViewController animated:YES completion:nil];
+                }];
+            }else{
+                KKImageEditorViewController *editor = [[KKImageEditorViewController alloc] initWithImage:image delegate:self];
+                [picker pushViewController:editor animated:YES];
+
+            }
         }else{
             [self getEndImage:newfixImage];
             [picker dismissViewControllerAnimated:YES completion:^{
@@ -267,6 +281,29 @@
     if(_mCallback == nil) return;
     _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
     _mCallback = nil;
+}
+
+#pragma mark - Cropper Delegate -
+- (void)cropViewController:(TOCropViewController *)cropViewController didCropToImage:(UIImage *)image withRect:(CGRect)cropRect angle:(NSInteger)angle
+{
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        [self getEndImage:image];
+        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }
+    }];
+}
+
+- (void)cropViewController:(nonnull TOCropViewController *)cropViewController didFinishCancelled:(BOOL)cancelled
+{
+    if(_mCallback == nil) return;
+    _mCallback(@[@{@"paths":@"", @"initialPaths":@"", @"number":@0}]);
+    _mCallback = nil;
+    [cropViewController dismissViewControllerAnimated:YES completion:^{
+        if(_UIStatusBarStyle != [[UIApplication sharedApplication] statusBarStyle]){
+            [[UIApplication sharedApplication] setStatusBarStyle:_UIStatusBarStyle];
+        }
+    }];
 }
 
 #pragma mark - getImage -

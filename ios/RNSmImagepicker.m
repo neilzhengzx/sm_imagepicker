@@ -71,6 +71,9 @@ RCT_EXPORT_METHOD(imageFromMultiCamera:(NSDictionary *)params callback:(RCTRespo
     double quality = 0.6;
     int videoQuality = 6;
     int durationLimit = 15;
+    BOOL isScale = false;
+    int aspectX = 1.0f;
+    int aspectY = 1.0f;
     
     if(params[@"isEdit"]){
         isEdit = [params[@"isEdit"] boolValue];
@@ -87,12 +90,21 @@ RCT_EXPORT_METHOD(imageFromMultiCamera:(NSDictionary *)params callback:(RCTRespo
     if(params[@"videoDurationLimit"]){
         durationLimit = [params[@"videoDurationLimit"] intValue];
     }
+    if(params[@"isScale"]){
+        isScale = [params[@"isScale"] boolValue];
+    }
+    if(params[@"aspectX"]){
+        aspectX = [params[@"aspectX"] intValue];
+    }
+    if(params[@"aspectY"]){
+        aspectY = [params[@"aspectY"] intValue];
+    }
     
     static CACameraController *camera = nil;
     if(!camera){
         camera = [[CACameraController alloc] init];
     }
-    [camera openCameraView:type allowEdit:isEdit videoQuality:videoQuality durationLimit:durationLimit compressedPixel:compressedPixel quality:quality callback:callback];
+    [camera openCameraView:type allowEdit:isEdit isScale:isScale aspectX:aspectX aspectY:aspectY videoQuality:videoQuality durationLimit:durationLimit compressedPixel:compressedPixel quality:quality callback:callback];
 }
       
 RCT_EXPORT_METHOD(multiImage:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback)
@@ -124,6 +136,9 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)params callback:(RCTResponseSenderBl
     int compressedPixel = 1280;
     double quality = 0.6;
     NSString* url = @"";
+    BOOL isScale = false;
+    int aspectX = 1.0f;
+    int aspectY = 1.0f;
     if(params[@"compressedPixel"]){
         compressedPixel = [params[@"compressedPixel"] intValue];
     }
@@ -133,13 +148,22 @@ RCT_EXPORT_METHOD(cropImage:(NSDictionary *)params callback:(RCTResponseSenderBl
     if(params[@"url"]){
         url = params[@"url"];
     }
+    if(params[@"isScale"]){
+        isScale = [params[@"isScale"] boolValue];
+    }
+    if(params[@"aspectX"]){
+        aspectX = [params[@"aspectX"] intValue];
+    }
+    if(params[@"aspectY"]){
+        aspectY = [params[@"aspectY"] intValue];
+    }
     
     static  CACropImageController* cropImage = nil;
     if(!cropImage){
         cropImage = [[CACropImageController alloc] init];
     }
     
-    [cropImage openCropImageView:url compressedPixel:compressedPixel quality:quality callback:callback];
+    [cropImage openCropImageView:url compressedPixel:compressedPixel isScale:isScale aspectX:aspectX aspectY:aspectY quality:quality callback:callback];
 }
 
 RCT_EXPORT_METHOD(cleanImage:(NSDictionary *)params callback:(RCTResponseSenderBlock)callback)

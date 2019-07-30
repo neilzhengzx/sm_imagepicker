@@ -459,11 +459,10 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
                 callbackWithSuccess(thumbPath, path2, 1);
               }
             });
-          }
-          else if(mCameraAndAlbumIsScale){
-            cropImageUri(cropImagePath, CROPIMAGE);
+          }else if(mCameraAndAlbumIsScale){
+            cropImageUri(path2, CROPIMAGE);
           }else{
-            editImageUri(cropImagePath, EDITIMAGE);
+            editImageUri(path2, EDITIMAGE);
           }
           break;
         case MULTIIMAGE:

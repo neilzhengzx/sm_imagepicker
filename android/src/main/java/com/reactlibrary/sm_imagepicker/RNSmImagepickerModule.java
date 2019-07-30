@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -54,6 +55,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   private static ArrayList<String> mOriginData;
   private static int mMultiImageNum = 9;
   private static boolean mCameraAndAlbumIsEdit = false;
+  private static boolean mCameraAndAlbumIsScale = false;
   private static int mCameraAndAlbumCompressedPixel = 1280;
   private static int mCameraAndAlbumQuality = 60;
   private Callback mCallBack;
@@ -66,9 +68,12 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
   private static final int CROPIMAGE = 14;
   private static final int SELECT_VIDEO = 15;
   private static final int MULTI_CAMERA = 16;
+  private static final int EDITIMAGE = 17;
 
   private static int videoQuality = 1;
   private static int videoDurationLimit = 15;
+  private static int mAspectX = 1;
+  private static int mAspectY = 1;
 
   //连续拍照最大张数限制
   private static int mMultiCameraNumberLimit = 3;
@@ -119,8 +124,14 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       return;
     }
 
+    mCameraAndAlbumIsScale = false;
     if (params.hasKey("isEdit")) {
       mCameraAndAlbumIsEdit = params.getBoolean("isEdit");
+    }
+    if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
+      mCameraAndAlbumIsScale = true;
+      mAspectX = params.getInt("aspectX");
+      mAspectY = params.getInt("aspectY");
     }
     if (params.hasKey("compressedPixel")) {
       mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
@@ -170,6 +181,13 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       mCameraAndAlbumCompressedPixel = params.getInt("compressedPixel");
     }
 
+    mCameraAndAlbumIsScale = false;
+    if (params.hasKey("aspectX") && params.hasKey("aspectY")) {
+      mCameraAndAlbumIsScale = true;
+      mAspectX = params.getInt("aspectX");
+      mAspectY = params.getInt("aspectY");
+    }
+
     String imageUrl = "";
     if (params.hasKey("url") && params.getString("url").length() > 0) {
       imageUrl = params.getString("url");
@@ -212,7 +230,11 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
       bos = new BufferedOutputStream(fos);
       bos.write(btImg);
 
-      editImageUri(cropImagePath, CROPIMAGE);
+      if(mCameraAndAlbumIsScale){
+        editImageUri(cropImagePath, EDITIMAGE);
+      }else{
+        cropImageUri(cropImagePath, CROPIMAGE);
+      }
     } catch (Exception e){
       callbackWithSuccess("","",0);
     }finally {
@@ -431,7 +453,11 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           }
           else
           {
-            editImageUri(path2, CROPIMAGE);
+            if(mCameraAndAlbumIsScale){
+              editImageUri(path2, EDITIMAGE);
+            }else{
+              cropImageUri(path2, CROPIMAGE);
+            }
           }
           break;
         case MULTIIMAGE:
@@ -465,7 +491,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           });
           mOriginData.clear();
           break;
-        case CROPIMAGE:
+        case EDITIMAGE:
           getImageThumbnail(activity, cropImagePath, new SaveThumbListerner(){
 
             @Override
@@ -474,6 +500,25 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
               callbackWithSuccess(CropPath, cropImagePath, 1);
             }
           });
+          break;
+        case CROPIMAGE:
+          Uri cropPhoto = null;
+          if (intent != null){
+            cropPhoto= intent.getData();
+          }
+          if(cropPhoto == null){
+            callbackWithSuccess("","",0);
+          }else{
+            cropImagePath = getPath(activity, cropPhoto);
+            getImageThumbnail(activity, cropImagePath, new SaveThumbListerner(){
+
+              @Override
+              public void finishToSaveThumb(String CropPath) {
+                if(CropPath.equalsIgnoreCase("")) CropPath = cropImagePath;
+                callbackWithSuccess(CropPath, cropImagePath, 1);
+              }
+            });
+          }
           break;
         case SELECT_VIDEO:
           Uri videoData = null;
@@ -523,6 +568,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
         case SELECT_PIC:
         case SELECT_PIC_KITKAT:
         case CROPIMAGE:
+        case EDITIMAGE:
         case MULTIIMAGE:
         case SELECT_VIDEO:
           callbackWithSuccess("","",0);
@@ -651,6 +697,20 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     new File(cropImagePath);
     intent.putExtra(IMGEditActivity.EXTRA_IMAGE_SAVE_PATH, cropImagePath);
 
+    mCurrentActivety.startActivityForResult(intent, requestCode);
+  }
+
+  private static void cropImageUri(String path, int requestCode)
+  {
+    Intent intent = new Intent("com.android.camera.action.CROP");
+    FileUtil.setIntentDataAndType(mCurrentActivety,
+            intent, "image/*", new File(path), true); /////7.0必须是content://
+    intent.putExtra("crop", "true");
+    intent.putExtra("aspectX", mAspectX);
+    intent.putExtra("aspectY", mAspectY);
+    intent.putExtra("scale", true);
+    //将剪切的图片保存到目标Uri中
+    intent.putExtra("return-data", false);
     mCurrentActivety.startActivityForResult(intent, requestCode);
   }
 

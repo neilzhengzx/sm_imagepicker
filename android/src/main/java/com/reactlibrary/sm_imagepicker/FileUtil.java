@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import androidx.core.content.FileProvider;
+
 /**
  * Created by sun on 14-5-5.
  */
@@ -257,7 +259,7 @@ public class FileUtil {
 
 	public static Uri getUriForFile24(Context context, File file) {
 
-		Uri fileUri = android.support.v4.content.FileProvider.getUriForFile(context,
+		Uri fileUri = FileProvider.getUriForFile(context,
 				context.getPackageName() + ".fileprovider",
 				file);
 		return fileUri;

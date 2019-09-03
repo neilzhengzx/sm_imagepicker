@@ -3,7 +3,6 @@ package me.kareluo.imaging.gallery;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +18,7 @@ import com.reactlibrary.sm_imagepicker.R;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.recyclerview.widget.RecyclerView;
 import me.kareluo.imaging.widget.IMGViewHolderCallback;
 
 /**
@@ -107,9 +107,7 @@ public class IMGGalleryMenuWindow extends PopupWindow {
         showAsDropDown(parent, 0, 0);
     }
 
-    private class MenuAdapter extends RecyclerView.Adapter<MenuItemViewHolder>
-            implements IMGViewHolderCallback {
-
+    private class MenuAdapter extends RecyclerView.Adapter<MenuItemViewHolder> implements IMGViewHolderCallback{
         @Override
         public MenuItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new MenuItemViewHolder(getLayoutInflater().inflate(

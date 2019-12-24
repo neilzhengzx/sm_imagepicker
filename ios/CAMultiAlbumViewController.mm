@@ -113,6 +113,7 @@
     
     // 4. 照片排列按修改时间升序
     imagePickerVc.sortAscendingByModificationDate = YES;
+    imagePickerVc.modalPresentationStyle = UIModalPresentationCurrentContext;
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

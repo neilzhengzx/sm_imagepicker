@@ -37,8 +37,7 @@ import java.util.ArrayList;
 public class MultiCameraActivity extends Activity implements CameraPreview.OnCameraStatusListener{
     private static final String TAG = "ReactNativeJS";
     public static final Uri IMAGE_URI = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-    public static final String PATH = Environment.getExternalStorageDirectory()
-            .toString() + "/AndroidMedia/";
+    public String PATH;
     CameraPreview mCameraPreview;
 
     private static int mCameraNumberLimit = 3;
@@ -76,6 +75,8 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
         mImagePaths = new ArrayList<>();
         mImageCount = 0;
         mCameraNumberLimit = getIntent().getIntExtra("numberLimit", 3);
+
+         PATH = getExternalCacheDir()+"/UploadImage/";
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

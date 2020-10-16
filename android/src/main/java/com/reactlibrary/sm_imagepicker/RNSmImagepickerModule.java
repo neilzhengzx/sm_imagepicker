@@ -898,10 +898,15 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     }
 
     //PLShortVideoTranscoder初始化，三个参数，第一个context，第二个要压缩文件的路径，第三个视频压缩后输出的路径
+    File dir = new File(mCurrentActivety.getExternalCacheDir()+"/UploadImage/");
+    if(!dir.exists())
+    {
+      dir.mkdir();
+    }
     String filePath;
     int dot = filepath.lastIndexOf('/');
     if ((dot >-1) && (dot < (filepath.length()))) {
-      filePath = filepath.substring(0, dot);
+      filePath = mCurrentActivety.getExternalCacheDir()+"/UploadImage";
     }else{
       callbackWithSuccess(filepath, filepath,0);
       return;

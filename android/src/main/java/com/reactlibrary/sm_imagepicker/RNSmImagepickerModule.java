@@ -13,10 +13,12 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.text.Editable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.dmcbig.mediapicker.PickerActivity;
+import com.dmcbig.mediapicker.PickerConfig;
+import com.dmcbig.mediapicker.entity.Media;
 import com.facebook.react.bridge.ActivityEventListener;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.Callback;
@@ -44,7 +46,7 @@ import java.util.Iterator;
 import java.util.UUID;
 
 import me.kareluo.imaging.IMGEditActivity;
-import me.nereo.multi_image_selector.MultiImageSelectorActivity;
+//import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
 public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements ActivityEventListener{
 
@@ -356,7 +358,6 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     try{
       photoUri = mCurrentActivety.getContentResolver().insert(
               MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
     } catch (Exception e){
       photoUri = mCurrentActivety.getContentResolver().insert(
               MediaStore.Images.Media.INTERNAL_CONTENT_URI, values);
@@ -388,10 +389,12 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
 
   public void multiImageAlbum()
   {
-    Intent intent = new Intent(mCurrentActivety, MultiImageSelectorActivity.class);
-    intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
-    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, mMultiImageNum);
-    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
+    Intent intent = new Intent(mCurrentActivety, PickerActivity.class);
+    intent.putExtra(PickerConfig.MAX_SELECT_COUNT,mMultiImageNum);
+    intent.putExtra(PickerConfig.SELECT_MODE,PickerConfig.PICKER_IMAGE);
+//    intent.putExtra(PickerActivity.EXTRA_SHOW_CAMERA, true);
+//    intent.putExtra(PickerActivity.EXTRA_SELECT_COUNT, mMultiImageNum);
+//    intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
     try{
       mCurrentActivety.startActivityForResult(intent, MULTIIMAGE);
     } catch (Exception e){
@@ -470,13 +473,14 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
           int number = 0;
           ArrayList<String> list = new ArrayList<>();
           if (intent != null){
-            mOriginData = intent.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
-            if(mOriginData.size() != 0)
+            ArrayList<Media> originData = intent.getParcelableArrayListExtra(PickerConfig.EXTRA_RESULT);//选择完后返回的list
+            if(originData.size() != 0)
             {
-              Iterator<String> it1 = mOriginData.iterator();
+              Iterator<Media> it1 = originData.iterator();
               while(it1.hasNext())
               {
-                String image = it1.next();
+                Media imageM = it1.next();
+                String image = imageM.path;
                 ImagesPath += image  + ",*";
                 list.add(image);
                 number++;
@@ -494,7 +498,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
               callbackWithSuccess(thumbPath, ImagesPaths, numbers);
             }
           });
-          mOriginData.clear();
+//          mOriginData.clear();
           break;
         case EDITIMAGE:
           getImageThumbnail(activity, cropImagePath, new SaveThumbListerner(){

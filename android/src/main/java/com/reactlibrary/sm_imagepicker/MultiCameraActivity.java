@@ -12,7 +12,6 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -29,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * Created by zzx on 2018/6/25.
@@ -162,7 +162,7 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
         long dateTaken = System.currentTimeMillis();
         // 图像名称
         String filename = DateFormat.format("yyyy-MM-dd kk.mm.ss", dateTaken)
-                .toString() + ".jpg";
+                .toString()  + getUUID() + ".jpg";
         String filePath = PATH + filename;
         Log.d(TAG, "imageth:" + filePath);
         // 存储图像（PATH目录）
@@ -178,6 +178,10 @@ public class MultiCameraActivity extends Activity implements CameraPreview.OnCam
             //继续启动摄像头
             mCameraPreview.start();
         }
+    }
+
+    public static String getUUID() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     /**

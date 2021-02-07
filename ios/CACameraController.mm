@@ -53,7 +53,7 @@
             imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];
         }
     }else if(type == ImagePickerImageAlbum || type == ImagePickerVideoAlbum){
-        imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        imagePicker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
         
         if(type == ImagePickerVideoAlbum) imagePicker.mediaTypes = @[(NSString *)kUTTypeMovie];
         else imagePicker.mediaTypes = @[(NSString *)kUTTypeImage];

@@ -43,7 +43,7 @@ static KKImageEditorTheme *_sharedInstance = nil;
     if (self) {
         
         self.backgroundColor                = [UIColor whiteColor];
-        self.toolbarColor                   = [[UIColor blackColor] colorWithAlphaComponent:0.7];;
+        self.toolbarColor                   = [[UIColor blackColor] colorWithAlphaComponent:0.7];
         self.toolIconColor                  = @"black";
         self.toolbarTextColor               = [UIColor blackColor];
     }

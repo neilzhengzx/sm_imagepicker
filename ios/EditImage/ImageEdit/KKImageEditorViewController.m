@@ -83,6 +83,10 @@
 {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+    // 设置导航栏背景颜色
+    [self.navigationController.navigationBar setTranslucent:false];
+    [self.navigationController.navigationBar setBarTintColor:[UIColor blackColor]];
+    [self initImageScrollView];
     [self refreshImageView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateNavigationItem) name:KTextEditDoneNotification object:nil];
 }
@@ -125,6 +129,12 @@
         
         [self.view insertSubview:imageScroll atIndex:0];
         _scrollView = imageScroll;
+    }else{
+        CGFloat y = self.navigationController.navigationBar.bottom;
+        _scrollView.top = 0;
+        _scrollView.height = self.view.height - y - _menuView.height;
+        _menuView.top = self.view.height - 80 - y;
+        
     }
 }
 

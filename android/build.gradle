@@ -38,8 +38,8 @@ dependencies {
     implementation 'com.facebook.react:react-native:+'
     implementation 'com.smobiler:MediaPicker:1.0.1'
     api files('libs/pldroid-shortvideo-1.10.0.jar')
-    implementation "com.android.support:appcompat-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
+    implementation "androidx.appcompat:appcompat:${safeExtGet('supportLibraryAndroidXVersion', '1.0.0')}"
     implementation "com.facebook.fresco:fresco:$rootProject.ext.gifVersion"
-    implementation "com.android.support:recyclerview-v7:${safeExtGet('supportLibraryVersion', '26.1.0')}"
+    implementation "androidx.recyclerview:recyclerview:${safeExtGet('supportLibraryAndroidXVersion', '1.0.0')}"
 }
   

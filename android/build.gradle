@@ -28,10 +28,6 @@ android {
 repositories {
     mavenCentral()
     maven { url "https://jitpack.io" }
-    maven {
-            url 'https://maven.google.com/'
-            name 'Google'
-        }
 }
 
 dependencies {

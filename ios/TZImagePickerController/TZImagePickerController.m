@@ -55,6 +55,14 @@
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
+    if (@available(iOS 13.0, *)) {
+        UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+        [appearance setBackgroundColor:[UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0]];
+        NSDictionary *dic = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+        [appearance setTitleTextAttributes:dic];
+        [[UINavigationBar appearance] setScrollEdgeAppearance:appearance];
+        [[UINavigationBar appearance] setStandardAppearance:appearance];
+    }
         
     UIBarButtonItem *barItem;
     if (iOS9Later) {

@@ -715,6 +715,7 @@ public class RNSmImagepickerModule extends ReactContextBaseJavaModule implements
     FileUtil.setIntentDataAndType(mCurrentActivety,
             intent, "image/*", new File(path), true); /////7.0必须是content://
     intent.putExtra("crop", "true");
+    intent.putExtra("circleCrop", "false");
     intent.putExtra("aspectX", mAspectX);
     intent.putExtra("aspectY", mAspectY);
     intent.putExtra("scale", true);

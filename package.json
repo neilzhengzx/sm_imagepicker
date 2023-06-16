@@ -1,7 +1,7 @@
 {
   "name": "react-native-sm-imagepicker",
   "version": "1.0.1",
-  "description": "",
+  "description": "get camera and album picture",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,8 +9,8 @@
   "keywords": [
     "react-native"
   ],
-  "author": "",
-  "license": "",
+  "author": "neil",
+  "license": "MIT",
   "peerDependencies": {
   }
 }

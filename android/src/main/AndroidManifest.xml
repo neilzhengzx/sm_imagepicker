@@ -1,4 +1,3 @@
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.reactlibrary.sm_imagepicker">
 
@@ -15,7 +14,8 @@
 
         <activity
             android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
-            android:label="Picture">
+            android:label="Picture"
+            android:exported="true">
             <intent-filter>
                 <action android:name="react.native.sm.imagepicker.ShowMultiImage" />
                 <category android:name="android.intent.category.DEFAULT" />

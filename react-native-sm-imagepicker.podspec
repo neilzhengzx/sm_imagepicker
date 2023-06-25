@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.homepage      = "http://git.smobiler.com:8442/RN-Source/sm-imagepicker"
   s.source        = { :git => 'http://git.smobiler.com:8442/RN-Source/sm-imagepicker.git', :tag => "v#{s.version}" }
   s.platform      = :ios, '9.0'
-  s.source_files  = "ios/**/*.{h,m}"
+  s.source_files  = "ios/**/*.{h,m,mm}"
 
   s.dependency 'React-Core'
 end

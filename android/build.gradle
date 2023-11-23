@@ -32,7 +32,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'com.smobiler:MediaPicker:1.0.1'
+    implementation 'com.smobiler:MediaPicker:1.0.3'
     api files('libs/pldroid-shortvideo-1.10.0.jar')
     implementation "androidx.appcompat:appcompat:${safeExtGet('supportLibraryAndroidXVersion', '1.3.0')}"
     implementation "com.facebook.fresco:fresco:${safeExtGet('gifVersion', '2.0.0')}"
